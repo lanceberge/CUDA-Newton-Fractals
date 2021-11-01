@@ -25,10 +25,8 @@ Polynomial *derivative(Polynomial *P)
 }
 
 // find P(z) - plug in a point z to the polynomial
-Point *Pz(Polynomial *P, Point *z);
+dfloat complex Pz(Polynomial *P, dfloat complex z)
 {
-    dfloat complex z = P->Re + P->Im*I;
-
     dfloat complex cumulativeSum = 0;
 
     // for A, B, C, D in coeffs. of polynomial P,
@@ -39,12 +37,5 @@ Point *Pz(Polynomial *P, Point *z);
         cumulativeSum += cpow(z, order-i);
     }
 
-    z = cumulativeSum;
-
-    Point *Pz = malloc(sizeof(*Pz));
-
-    Pz->Re = creal(cumulativeSum);
-    Pz->Im = cimage(cumulativeSum);
+    return z = cumulativeSum;
 }
-
-#endif

@@ -1,7 +1,9 @@
 #ifndef __POLYNOMIAL_H__
 #define __POLYNOMIAL_H__
 
-#include "point.h"
+#define dfloat double
+
+#include <complex.h>
 
 // a struct representing polynomials - i.e. the polynomial Ax^3 + Cx + D
 // would have order=3 and coeffs=[A,0,C,D]
@@ -16,6 +18,6 @@ typedef struct Polynomial
 Polynomial *derivative(Polynomial *P);
 
 // find P(z) - plug in a point z to the polynomial
-Point *Pz(Polynomial *P, Point *z);
+dfloat complex Pz(Polynomial *P, dfloat complex *z);
 
 #endif

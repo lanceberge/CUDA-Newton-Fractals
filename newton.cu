@@ -1,4 +1,5 @@
 #include "newton.h"
+#include <math.h>
 
 // perform an iteration of newton's method with a thread handling
 // each point in points
@@ -19,4 +20,13 @@ __global__ void newtonIterate(PointChange **points, Polynomial *P, Polynomial *P
             Point Pprimez = Pz(Pprime, z);
         }
     }
+}
+
+// compute the L2 distance between two points
+dfloat L2Distance(complex dfloat z1, complex dfloat z2)
+{
+    dfloat ReDiff = creal(z1) - creal(z2);
+    dfloat ImDiff = cimag(z1) - cimag(z2);
+
+    return sqrt((ReDiff*ReDiff) + (ImDiff*ImDiff));
 }
