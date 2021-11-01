@@ -24,8 +24,19 @@ int main(int argc, int **argv)
     int N = Nx*Ny;
 
     // arrays for initial points and points following iteration
-    dfloat complex *zValsInitial = (dfloat complex *)malloc(Nx*Ny*sizeof(dfloat complex));
-    dfloat complex *zVals = (dfloat complex *)malloc(Nx*Ny*sizeof(dfloat complex));
+    dfloat complex *zValsInitial, zVals;
+    cudaMalloc(&zValsInitial, N*sizeof(dfloat complex));
+    cudaMalloc(&zVals, N*sizeof(dfloat complex));
+
+    /* dfloat complex zValsInitial= (dfloat complex *)malloc(Nx*Ny*sizeof(dfloat complex)); */
+    /* dfloat complex *zVals = (dfloat complex *)malloc(Nx*Ny*sizeof(dfloat complex)); */
+
+    int B = 256;
+    int G = N + B - 1 / B;
+
+    dim3 B2(16, 16, 1);
+    dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+    fillArrays<<< G, B >>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
     // starting x and y value
     /* int startRe = 0 - ReSpacing; */
