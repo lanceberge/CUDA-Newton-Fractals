@@ -34,6 +34,9 @@ int main(int argc, int **argv)
     int dx = xSpacing*2 / Nx;
     int dy = ySpacing*2 / Ny;
 
+    // TODO do this on device
+    // TODO change points array to PointChange array
+
     // store evenly spaced Nx and Ny values in the range
     // -xySpacing to xySpacing in points
     for (int i = 0; i < Nx; ++i)

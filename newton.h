@@ -1,22 +1,15 @@
 #ifndef __NEWTON_H__
 #define __NEWTON_H__
 
-#include "cuda.h"
-
 #define dfloat float
 
-typedef struct Point
-{
-    dfloat x;
-    dfloat y;
-} Point;
+#include "cuda.h"
+#include "point.h"
 
-typedef struct PointChange
-{
-    Point *before;
-    Point *after;
-} Change;
+// perform Nit iterations of newton's method on a polynomial p
+__global__ void newtonIterate(Point *Pz, Point *PprimeZ, int N, int Nit, PointChange **points);
 
-dfloat L2Distance(Point p1, Point p2);
+// serial newton iteration
+void serialNewtonIterate(Point *Pz, Point *PprimeZ, int N, int Nit, PointChange **points);
 
 #endif
