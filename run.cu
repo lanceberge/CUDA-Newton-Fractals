@@ -36,7 +36,11 @@ int main(int argc, int **argv)
 
     dim3 B2(16, 16, 1);
     dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-    fillArrays<<< G, B >>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+    fillArrays<<< G2, B2 >>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+
+    // TODO find a good polynomial P and test on roots
+    // TODO confirm output on host
+    newtonIterate<<< G, B>>>(zVals, P, Pprime, N, Nit);
 
     // starting x and y value
     /* int startRe = 0 - ReSpacing; */

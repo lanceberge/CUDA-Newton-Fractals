@@ -50,6 +50,9 @@ __global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *
 
         zVals[n] = z;
     }
+
+    // TODO output to CSV / copy back to host and output to CSV
+    // TODO find root this point is closest to
 }
 
 // compute the L2 distance between two points
