@@ -25,7 +25,7 @@ Polynomial *derivative(Polynomial *P)
 }
 
 // find P(z) - plug in a point z to the polynomial
-dfloat complex Pz(Polynomial *P, dfloat complex z)
+__host__ __device__ dfloat complex Pz(Polynomial *P, dfloat complex z)
 {
     dfloat complex cumulativeSum = 0;
 
@@ -33,9 +33,7 @@ dfloat complex Pz(Polynomial *P, dfloat complex z)
     // return the cumulative sum of Az^4 + Bz^3 + ...
     // in a new Point struct
     for (int i = 0; i < P->order; ++i)
-    {
         cumulativeSum += cpow(z, order-i);
-    }
 
     return z = cumulativeSum;
 }
