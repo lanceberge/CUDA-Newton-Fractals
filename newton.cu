@@ -8,9 +8,12 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, dfloat complex *ZvalsIn
     int x = threadIdx.x + blockDim.x*blockIdx.x;
     int y = threadIdx.y + blockDim.y*blockIdy.y;
 
+    // the starting value to fill real and imaginary values in our complex plane
+    // i.e. if startRe is 1000, we will have Re values evenly spaced from -1000 to 1000
     int startRe = 0 - ReSpacing;
     int startIm = 0 - ImSpacing;
 
+    // difference in Re and Im values for them to be evenly spaced
     int dx = ReSpacing*2 / Nx;
     int dy = ImSpacing*2 / Ny;
 
@@ -52,11 +55,11 @@ __global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *
     }
 
     // TODO output to CSV / copy back to host and output to CSV
-    // TODO find root this point is closest to
+    // TODO find the true root this point is closest to
 }
 
 // compute the L2 distance between two points
-dfloat L2Distance(dfloat complex z1, dfloat complex z2)
+__host__ __device__ dfloat L2Distance(dfloat complex z1, dfloat complex z2)
 {
     dfloat ReDiff = creal(z1) - creal(z2);
     dfloat ImDiff = cimag(z1) - cimag(z2);

@@ -29,11 +29,9 @@ __host__ __device__ dfloat complex Pz(Polynomial *P, dfloat complex z)
 {
     dfloat complex cumulativeSum = 0;
 
-    // for A, B, C, D in coeffs. of polynomial P,
-    // return the cumulative sum of Az^4 + Bz^3 + ...
-    // in a new Point struct
+    // for A, B, C, D in coeffs. of P, return the cumulative sum of Az^4 + Bz^3 + ...
     for (int i = 0; i < P->order; ++i)
         cumulativeSum += cpow(z, order-i);
 
-    return z = cumulativeSum;
+    return cumulativeSum;
 }
