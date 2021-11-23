@@ -21,7 +21,7 @@ int main(int argc, int **argv)
     int ImSpacing = 500;
 
     // total number of points
-    int N = Nx*Ny;
+    int N = NRe*NIm;
 
     // arrays for initial points and points following iteration
     dfloat complex *zValsInitial, zVals;
@@ -36,42 +36,10 @@ int main(int argc, int **argv)
 
     dim3 B2(16, 16, 1);
     dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-    fillArrays<<< G2, B2 >>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+    fillArrays <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
     // TODO find a good polynomial P and test on roots
     // TODO confirm output on host
-    newtonIterate<<< G, B>>>(zVals, P, Pprime, N, Nit);
-
-    // starting x and y value
-    /* int startRe = 0 - ReSpacing; */
-    /* int startIm = 0 - ImSpacing; */
-
-    // TODO do this on device
-
-    /* // change in x and y at each iteration */
-    /* int dx = ReSpacing*2 / Nx; */
-    /* int dy = ImSpacing*2 / Ny; */
-
-    /* // TODO change points array to PointChange array */
-
-    /* // store evenly spaced Nx and Ny values in the range */
-    /* // -xySpacing to xySpacing in points */
-    /* for (int i = 0; i < Nx; ++i) */
-    /* { */
-    /*     dfloat x = startX + i*dx; */
-
-    /*     for (int j = 0; j < Ny; ++j) */
-    /*     { */
-    /*         dfloat y = startY + j*dy; */
-
-    /*         Point *p = (Point*)malloc(sizeof(Point*)); */
-    /*         p->x = x; */
-    /*         p->y = y; */
-
-    /*         // store points in row-major format in points */
-    /*         points[i + j*N] = p; */
-    /*     } */
-    /* } */
-
+    newtonIterate <<< G, B>>> (zVals, P, Pprime, N, Nit);
     return 0;
 }
