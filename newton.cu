@@ -30,7 +30,7 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, dfloat complex *ZvalsIn
     }
 }
 
-// perform an iteration of newton's method with a thread handling
+// perform Nit iterations of newton's method with a thread handling
 // each point in points
 __global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *Pprime,
                               int N, int Nit)
@@ -53,9 +53,79 @@ __global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *
 
         zVals[n] = z;
     }
+}
 
-    // TODO output to CSV / copy back to host and output to CSV
-    // TODO find the true root this point is closest to
+// for each solution in zVals, find the solution it's closest to based on L1 distance
+__global__ void findClosestSoln(int *closest; dfloat complex *zVals, int nVals, dfloat complex *solns, int nSolns)
+{
+    int n = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (n < nVals)
+    {
+        dfloat dist = L2Distance(solns[0], zVals[n]);
+        int idx = 0;
+
+        for (int i = 1; i < nSolns; ++i)
+        {
+            dfloat currDist = L2Distance(solns[i], zVals[n]);
+
+            if (currDist < dist)
+            {
+                dist = currDist;
+                idx = i;
+            }
+
+        }
+
+        closest[n] = idx;
+    }
+}
+
+// zVals - the complex values following running Newton's iteration
+// nSolns - order of the polynomial
+// after running the iteration, zVals should represent n unique values corresponding
+// to the solutions of the polynomial, this function finds those unique values
+__host__ __device__ dfloat complex *findSolns(dfloat complex *zVals, int nSolns, int nVals)
+{
+    // the solutions to the polynomial
+    dfloat complex *solns = malloc(n * sizeof(dfloat complex));
+
+    int nFound = 1;
+
+    // we will only compare the first 16 bits to account for floating point error
+    // and values that haven't converged yet
+    float mask = 0xFFFF0000;
+
+
+    // iterate over zVals
+    for (int i = 1; i < nVals && nFound != n; ++i)
+    {
+        bool alreadyFound = false;
+
+        dfloat complex curr = zVals[i];
+
+        // if the current value isn't already in solns (based on the first 16 bits
+        // of its real and imaginary components, then add it to solns
+        for (int j = 0; j < nFound; ++j)
+        {
+            dfloat complex currFound = solns[j];
+            if (creal(curr) & mask == creal(currFound) & mask &&
+                cimag(curr) & mask == cimag(currFound) & mask)
+            {
+                alreadyFound = true;
+                break;
+            }
+        }
+
+        // if this solution isn't already in solutions, add it
+        if (!alreadyFound)
+        {
+            solns[nFound] = curr;
+            ++nFound;
+        }
+    }
+
+    return solns;
 }
 
 // compute the L2 distance between two points
@@ -66,3 +136,6 @@ __host__ __device__ dfloat L2Distance(dfloat complex z1, dfloat complex z2)
 
     return sqrt((ReDiff*ReDiff) + (ImDiff*ImDiff));
 }
+
+
+// TODO output to CSV / copy back to host and output to CSV
