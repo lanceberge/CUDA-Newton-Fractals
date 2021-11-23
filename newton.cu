@@ -31,7 +31,7 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, dfloat complex *ZvalsIn
 }
 
 // perform Nit iterations of newton's method with a thread handling
-// each point in points
+// each point in zVals
 __global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *Pprime,
                               int N, int Nit)
 {
@@ -85,11 +85,9 @@ __global__ void findClosestSoln(int *closest; dfloat complex *zVals, int nVals, 
 // nSolns - order of the polynomial
 // after running the iteration, zVals should represent n unique values corresponding
 // to the solutions of the polynomial, this function finds those unique values
-__host__ __device__ dfloat complex *findSolns(dfloat complex *zVals, int nSolns, int nVals)
+__host__ __device__ dfloat complex *findSolns(dfloat complex *solns, dfloat complex *zVals,
+                                              int nSolns, int nVals)
 {
-    // the solutions to the polynomial
-    dfloat complex *solns = malloc(n * sizeof(dfloat complex));
-
     int nFound = 1;
 
     // we will only compare the first 16 bits to account for floating point error
@@ -137,5 +135,18 @@ __host__ __device__ dfloat L2Distance(dfloat complex z1, dfloat complex z2)
     return sqrt((ReDiff*ReDiff) + (ImDiff*ImDiff));
 }
 
+// for N values in zVals, output their real component, imaginary component,
+// and closes solution to a csv
+void outputToCSV(const char *filename, int N, float *zVals, int *closest)
+{
+    FILE *fp = fopen(filename, "w");
 
+    // print our header
+    fprintf(fp, "Re, Im, Closest");
+
+    for (int i = 0; i < N; ++i)
+        fprintf(fp, "%f, %f, %d", creal(zVals[i]), cimag(zVals[i]), closest[i]);
+
+    fclose(fp);
+}
 // TODO output to CSV / copy back to host and output to CSV
