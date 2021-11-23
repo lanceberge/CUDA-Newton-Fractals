@@ -1,0 +1,9 @@
+* TODO create a polynomial P to test everything on
+* TODO function to find order of P unique roots that the iteration converged to
+* TODO run iteration on polynomial P
+* TODO confirm that the roots are correct
+* TODO output to CSV
+* TODO matlab visualizations
+
+- On zValsInitial
+- On zVals over various iterations

@@ -25,13 +25,20 @@ Polynomial *derivative(Polynomial *P)
 }
 
 // find P(z) - plug in a point z to the polynomial
-__host__ __device__ dfloat complex Pz(Polynomial *P, dfloat complex z)
+__host__ __device__ std::complex<dfloat> Pz(Polynomial *P, std::complex<dfloat> z)
 {
     dfloat complex cumulativeSum = 0;
 
     // for A, B, C, D in coeffs. of P, return the cumulative sum of Az^4 + Bz^3 + ...
     for (int i = 0; i < P->order; ++i)
-        cumulativeSum += cpow(z, order-i);
+        cumulativeSum += std::pow(z, order-i);
 
     return cumulativeSum;
+}
+
+// free associated memory
+void freePolynomial(Polynomial *P)
+{
+    free(P->coeffs);
+    free(P);
 }

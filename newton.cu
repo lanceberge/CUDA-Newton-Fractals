@@ -2,20 +2,15 @@
 #include <math.h>
 
 // fill arrays for points before and after performing the newton iteration on them
-__global__ void fillArrays(int ReSpacing, int ImSpacing, dfloat complex *ZvalsInitial,
-                           dfloat complex *zVals, int NRe, int NIm)
+__global__ void fillArrays(int ReSpacing, int ImSpacing, std::complex<dfloat> *zValsInitial,
+                           std::complex<dfloat> *zVals, int NRe, int NIm)
 {
     int x = threadIdx.x + blockDim.x*blockIdx.x;
-    int y = threadIdx.y + blockDim.y*blockIdy.y;
-
-    // the starting value to fill real and imaginary values in our complex plane
-    // i.e. if startRe is 1000, we will have Re values evenly spaced from -1000 to 1000
-    int startRe = 0 - ReSpacing;
-    int startIm = 0 - ImSpacing;
+    int y = threadIdx.y + blockDim.y*blockIdx.y;
 
     // difference in Re and Im values for them to be evenly spaced
-    int dx = ReSpacing*2 / Nx;
-    int dy = ImSpacing*2 / Ny;
+    int dx = ReSpacing*2 / NRe;
+    int dy = ImSpacing*2 / NIm;
 
     if (x < NRe && y < NIm)
     {
@@ -25,30 +20,31 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, dfloat complex *ZvalsIn
         dfloat Im = y*dy - ImSpacing;
 
         // fill zVals arrays in row-major format
-        zvalsInitial[x + NRe*y] = Re + I*Im;
-        zvals       [x + NRe*y] = Re + I*Im;
+        zValsInitial[x + NRe*y] = std::complex<dfloat> (Re, Im);
+        zVals       [x + NRe*y] = std::complex<dfloat> (Re, Im);
     }
 }
 
 // perform Nit iterations of newton's method with a thread handling
 // each point in zVals
-__global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *Pprime,
+__global__ void newtonIterate(std::complex<dfloat> *zVals, Polynomial *P, Polynomial *Pprime,
                               int N, int Nit)
 {
     int n = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (n < N)
     {
-        dfloat complex z = zVals[n];
+        std::complex<dfloat> z = zVals[n];
 
         // deform Nit iterations of z_i+1 = z_i - P(z_i) / P'(z_i)
         for (int i = 0; i < Nit; ++i)
         {
             // find P(z) and P'(z)
-            dfloat complex Pz = Pz(P, z);
-            dfloat complex Pprimez = Pz(Pprime, z);
+            std::complex<dfloat> P_z = Pz(P, z);
+            std::complex<dfloat> P_primeZ = Pz(Pprime, z);
 
-            z = z + Pz/PprimeZ;
+            // TODO
+            z = z + P_z/P_primeZ;
         }
 
         zVals[n] = z;
@@ -56,7 +52,8 @@ __global__ void newtonIterate(dfloat complex *zVals, Polynomial *P, Polynomial *
 }
 
 // for each solution in zVals, find the solution it's closest to based on L1 distance
-__global__ void findClosestSoln(int *closest; dfloat complex *zVals, int nVals, dfloat complex *solns, int nSolns)
+__global__ void findClosestSoln(int *closest, std::complex<dfloat> *zVals, int nVals,
+                                std::complex<dfloat> *solns, int nSolns)
 {
     int n = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -85,59 +82,65 @@ __global__ void findClosestSoln(int *closest; dfloat complex *zVals, int nVals, 
 // nSolns - order of the polynomial
 // after running the iteration, zVals should represent n unique values corresponding
 // to the solutions of the polynomial, this function finds those unique values
-__host__ __device__ dfloat complex *findSolns(dfloat complex *solns, dfloat complex *zVals,
-                                              int nSolns, int nVals)
+__host__ __device__ void findSolns(std::complex<dfloat> *solns, std::complex<dfloat> *zVals,
+                                   int nSolns, int nVals)
 {
-    int nFound = 1;
+    int n = threadIdx.x + blockIdx.x * blockDim.x;
 
-    // we will only compare the first 16 bits to account for floating point error
-    // and values that haven't converged yet
-    float mask = 0xFFFF0000;
-
-
-    // iterate over zVals
-    for (int i = 1; i < nVals && nFound != n; ++i)
+    if (n < nVals)
     {
-        bool alreadyFound = false;
+        int nFound = 1;
 
-        dfloat complex curr = zVals[i];
+        // we will only compare the first 16 bits to account for floating point error
+        // and values that haven't converged yet
+        float mask = 0xFFFF0000;
 
-        // if the current value isn't already in solns (based on the first 16 bits
-        // of its real and imaginary components, then add it to solns
-        for (int j = 0; j < nFound; ++j)
+        // iterate over zVals
+        for (int i = 1; i < nVals && nFound != n; ++i)
         {
-            dfloat complex currFound = solns[j];
-            if (creal(curr) & mask == creal(currFound) & mask &&
-                cimag(curr) & mask == cimag(currFound) & mask)
+            bool alreadyFound = false;
+
+            std::complex<dfloat> curr = zVals[i];
+
+            // if the current value isn't already in solns (based on the first 16 bits
+            // of its real and imaginary components, then add it to solns
+            for (int j = 0; j < nFound; ++j)
             {
-                alreadyFound = true;
-                break;
+                std::complex<dfloat> currFound = solns[j];
+                // TODO
+                /* if (curr.real() & mask == currFound.real() & mask && */
+                /*     curr.imag() & mask == currFound.imag() & mask) */
+                if (curr.real() == currFound.real() &&
+                    curr.imag() == currFound.imag())
+                {
+                    alreadyFound = true;
+                    break;
+                }
+            }
+
+            // if this solution isn't already in solutions, add it
+            if (!alreadyFound)
+            {
+                solns[nFound] = curr;
+                ++nFound;
             }
         }
-
-        // if this solution isn't already in solutions, add it
-        if (!alreadyFound)
-        {
-            solns[nFound] = curr;
-            ++nFound;
-        }
     }
-
-    return solns;
 }
 
 // compute the L2 distance between two points
-__host__ __device__ dfloat L2Distance(dfloat complex z1, dfloat complex z2)
+__host__ __device__ dfloat L2Distance(std::complex<dfloat> z1, std::complex<dfloat> z2)
 {
-    dfloat ReDiff = creal(z1) - creal(z2);
-    dfloat ImDiff = cimag(z1) - cimag(z2);
+    // TODO
+    dfloat ReDiff = z1.real() - z2.real();
+    dfloat ImDiff = z1.imag() - z2.imag();
 
     return sqrt((ReDiff*ReDiff) + (ImDiff*ImDiff));
 }
 
 // for N values in zVals, output their real component, imaginary component,
 // and closes solution to a csv
-void outputToCSV(const char *filename, int N, float *zVals, int *closest)
+void outputToCSV(const char *filename, int N, std::complex<dfloat> *zVals, int *closest)
 {
     FILE *fp = fopen(filename, "w");
 
@@ -145,8 +148,8 @@ void outputToCSV(const char *filename, int N, float *zVals, int *closest)
     fprintf(fp, "Re, Im, Closest");
 
     for (int i = 0; i < N; ++i)
-        fprintf(fp, "%f, %f, %d", creal(zVals[i]), cimag(zVals[i]), closest[i]);
+        // TODO
+        fprintf(fp, "%f, %f, %d", zVals[i].real(), zVals[i].imag(), closest[i]);
 
     fclose(fp);
 }
-// TODO output to CSV / copy back to host and output to CSV
