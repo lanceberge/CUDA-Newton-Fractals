@@ -3,6 +3,7 @@
 
 /* #include "cuComplex.h" */
 #include "complex.h"
+#include <stdio.h>
 
 // a struct representing polynomials - i.e. the polynomial Ax^3 + Cx + D
 // would have order=3 and coeffs=[A,0,C,D]
@@ -18,5 +19,7 @@ Polynomial derivative(Polynomial P);
 
 // find P(z) - plug in a point z to the polynomial
 __host__ __device__ Complex Pz(Polynomial P, Complex z);
+
+void printP(Polynomial P);
 
 #endif

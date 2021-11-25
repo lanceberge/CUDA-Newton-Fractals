@@ -1,6 +1,5 @@
 // Test Polynomial
 #include "newton.h"
-#include <stdio.h>
 
 int main(int argc, char **argv)
 {
@@ -18,17 +17,9 @@ int main(int argc, char **argv)
 
     Pprime = derivative(P);
 
+    printP(P);
     printf("Pprime:\n");
-
-    for (int i = 0; i < Pprime.order; ++i)
-    {
-        if (i != Pprime.order - 1)
-        // coeffs[i]*z^order-i
-            printf("%f*z^%d + ", coeffs[i], order-i);
-
-        else
-            printf("%f*z^d\n", coeffs[i], order-i);
-    }
+    printP(Pprime);
 
     return 0;
 }

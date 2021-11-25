@@ -5,16 +5,15 @@
 Polynomial derivative(Polynomial P)
 {
     int order = P.order;
-    --order;
 
     Polynomial Pprime;
     Pprime.coeffs = (dfloat *)malloc(order * sizeof(dfloat));
-    Pprime.order = order;
+    Pprime.order = order - 1;
 
     dfloat *coeffs = P.coeffs;
 
     // update Pprime coeffs
-    for (int i = 0; i < order - 1; ++i)
+    for (int i = 0; i < order; ++i)
     {
         Pprime.coeffs[i] = coeffs[i]*(order-i);
     }
@@ -44,10 +43,24 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z)
         ImSum += coeff*zPow.Im;
 
         // update zPow to zPow*zPow
-        zPow = cMul(zPow, zPow);
+        zPow = cMul(zPow, z);
     }
 
     Complex Pz = {ReSum, ImSum};
 
     return Pz;
+}
+
+void printP(Polynomial P)
+{
+    dfloat *coeffs = P.coeffs;
+    int order      = P.order;
+
+    printf("Order: %d\n", order);
+
+    for (int i = 0; i < order; ++i)
+        printf("%f*z^%d + ", coeffs[i], order-i);
+
+    printf("%f\n", coeffs[order]);
+
 }
