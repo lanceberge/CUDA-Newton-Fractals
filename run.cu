@@ -60,21 +60,22 @@ int main(int argc, char **argv)
         newtonIterate <<< G, B>>>    (zVals, P, Pprime, N, 100);
 
         cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
-        cudaMemcpy(h_zVals, zVals,               N*sizeof(Complex), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_zVals,        zVals,        N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
         solns = (Complex *)malloc(order * sizeof(Complex));
 
         // find the solutions to this polynomial
-        findSolns(solns, h_zVals, order, N);
+        int nSolns = findSolns(solns, h_zVals, order, N);
 
         closest = (int *)malloc(N * sizeof(int));
         outputToCSV("data.csv", N, h_zVals, closest);
+        outputSolnsToCSV("solns.csv", nSolns, solns);
     }
 
     // free memory
-    cudaFree(zVals)  ; cudaFree(zValsInitial);
-    free(h_zVals)    ; free(h_zValsInitial)  ;
-    free(solns)      ; free(closest)         ;
+    cudaFree(zVals) ; cudaFree(zValsInitial);
+    free(h_zVals)   ; free(h_zValsInitial)  ;
+    free(solns)     ; free(closest)         ;
 
     return 0;
 }

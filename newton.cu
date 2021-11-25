@@ -54,38 +54,11 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
     }
 }
 
-// for each solution in zVals, find the solution it's closest to based on L1 distance
-__global__ void findClosestSoln(int *closest, Complex *zVals, int nVals,
-                                Complex *solns, int nSolns)
-{
-    int n = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (n < nVals)
-    {
-        dfloat dist = L2Distance(solns[0], zVals[n]);
-        int idx = 0;
-
-        for (int i = 1; i < nSolns; ++i)
-        {
-            dfloat currDist = L2Distance(solns[i], zVals[n]);
-
-            if (currDist < dist)
-            {
-                dist = currDist;
-                idx = i;
-            }
-
-        }
-
-        closest[n] = idx;
-    }
-}
-
 // zVals - the complex values following running Newton's iteration
 // nSolns - order of the polynomial
 // after running the iteration, zVals should represent n unique values corresponding
 // to the solutions of the polynomial, this function finds those unique values
-__host__ __device__ void findSolns(Complex *solns, Complex *zVals,
+__host__ __device__ int findSolns(Complex *solns, Complex *zVals,
                                    int nSolns, int nVals)
 {
     int nFound = 1;
@@ -125,6 +98,35 @@ __host__ __device__ void findSolns(Complex *solns, Complex *zVals,
             ++nFound;
         }
     }
+
+    return nFound;
+}
+
+// for each solution in zVals, find the solution it's closest to based on L1 distance
+__global__ void findClosestSoln(int *closest, Complex *zVals, int nVals,
+                                Complex *solns, int nSolns)
+{
+    int n = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (n < nVals)
+    {
+        dfloat dist = L2Distance(solns[0], zVals[n]);
+        int idx = 0;
+
+        for (int i = 1; i < nSolns; ++i)
+        {
+            dfloat currDist = L2Distance(solns[i], zVals[n]);
+
+            if (currDist < dist)
+            {
+                dist = currDist;
+                idx = i;
+            }
+
+        }
+
+        closest[n] = idx;
+    }
 }
 
 // compute the L2 distance between two points
@@ -143,10 +145,22 @@ void outputToCSV(const char *filename, int N, Complex *zVals, int *closest)
     FILE *fp = fopen(filename, "w");
 
     // print our header
-    fprintf(fp, "Re, Im, Closest");
+    fprintf(fp, "Re, Im, Closest\n");
 
     for (int i = 0; i < N; ++i)
-        fprintf(fp, "%f, %f, %d", zVals[i].Re, zVals[i].Im, closest[i]);
+        fprintf(fp, "%f, %f, %d\n", zVals[i].Re, zVals[i].Im, closest[i]);
+
+    fclose(fp);
+}
+
+void outputSolnsToCSV(const char *filename, int nSolns, Complex *solns)
+{
+    FILE *fp = fopen(filename, "w");
+
+    fprintf(fp, "Re, Im\n");
+
+    for (int i = 0; i < nSolns; ++i)
+        fprintf(fp, "%f, %f\n", solns[i].Re, solns[i].Im);
 
     fclose(fp);
 }
