@@ -14,11 +14,9 @@ typedef struct Polynomial
 } Polynomial;
 
 // return the first derivative of a polynomial
-Polynomial *derivative(Polynomial *P);
+Polynomial derivative(Polynomial P);
 
 // find P(z) - plug in a point z to the polynomial
-__host__ __device__ Complex Pz(Polynomial *P, Complex z);
-
-void freePolynomial(Polynomial *P);
+__host__ __device__ Complex Pz(Polynomial P, Complex z);
 
 #endif

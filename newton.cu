@@ -31,7 +31,7 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, Complex *zValsInitial,
 
 // perform Nit iterations of newton's method with a thread handling
 // each point in zVals
-__global__ void newtonIterate(Complex *zVals, Polynomial *P, Polynomial *Pprime,
+__global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
                               int N, int Nit)
 {
     int n = threadIdx.x + blockIdx.x * blockDim.x;

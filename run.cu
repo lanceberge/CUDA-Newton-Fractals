@@ -19,8 +19,8 @@ int main(int argc, char **argv)
     Complex *zValsInitial,   *zVals;
     Complex *h_zValsInitial, *h_zVals;
 
-    Polynomial *P;
-    Polynomial *Pprime;
+    Polynomial P;
+    Polynomial Pprime;
     Complex    *solns;
     int        *closest;
 
@@ -44,10 +44,9 @@ int main(int argc, char **argv)
         // create a polynomial
         int order = 4;
 
-        P = (Polynomial *)malloc(sizeof(Polynomial *));
-        P->order = order;
+        P.order = order;
         dfloat coeffs[5] = {1, 2, 3, 4, 5};
-        P->coeffs = coeffs;
+        P.coeffs = coeffs;
 
         Pprime = derivative(P);
 
@@ -75,7 +74,6 @@ int main(int argc, char **argv)
     // free memory
     cudaFree(zVals)  ; cudaFree(zValsInitial);
     free(h_zVals)    ; free(h_zValsInitial)  ;
-    freePolynomial(P); freePolynomial(Pprime);
     free(solns)      ; free(closest)         ;
 
     return 0;

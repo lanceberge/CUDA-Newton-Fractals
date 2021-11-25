@@ -8,7 +8,7 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, Complex *zValsInitial,
                 Complex *zVals, int NRe, int NIm);
 
 // perform Nit iterations of newton's method on a polynomial p
-__global__ void newtonIterate(Complex *zVals, Polynomial *P, Polynomial *Pprime,
+__global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
                               int N, int Nit);
 
 __host__ __device__ void findSolns(Complex *solns, Complex *zVals,
