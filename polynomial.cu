@@ -1,19 +1,20 @@
 #include "polynomial.h"
-#include <complex.h>
+#include "complex.h"
 
 // find the first derivative of a polynomial
 Polynomial *derivative(Polynomial *P)
 {
-    Polynomial *Pprime = (Polynomial *)malloc(sizeof(Polynomial *));
-    Prime->coeffs = (dfloat)malloc(order-1 * sizeof(dfloat));
-
     int order = P->order;
+
+    Polynomial *Pprime = (Polynomial *)malloc(sizeof(Polynomial *));
+    Pprime->coeffs = (dfloat *)malloc((order-1) * sizeof(dfloat));
+    Pprime->order = order - 1;
+
     dfloat *coeffs = P->coeffs;
 
     if (order < 1)
         return NULL;
 
-    Pprime->order = order - 1;
 
     // update Pprime coeffs
     for (int i = 0; i < order - 1; ++i)
@@ -25,20 +26,30 @@ Polynomial *derivative(Polynomial *P)
 }
 
 // find P(z) - plug in a point z to the polynomial
-__host__ __device__ std::complex<dfloat> Pz(Polynomial *P, std::complex<dfloat> z)
+__host__ __device__ Complex Pz(Polynomial *P, Complex z);
 {
-    dfloat complex cumulativeSum = 0;
+    dfloat *coeffs = P->coeffs;
+    int order = P->order;
+
+    dfloat ReSum = coeffs[order];
+    dfloat ImSum = 0;
+
+    Complex zPow = {z.Re, z.Im}
 
     // for A, B, C, D in coeffs. of P, return the cumulative sum of Az^4 + Bz^3 + ...
-    for (int i = 0; i < P->order; ++i)
-        cumulativeSum += std::pow(z, order-i);
+    for (int i = order-1; i >= 0; --i)
+    {
+        int coeff = coeffs[order];
 
-    return cumulativeSum;
-}
+        // zPow = z, then z^2, then z^3, etc.
+        ReSum += coeff*zPow.Re;
+        ImSum += coeff*zPow.Im;
 
-// free associated memory
-void freePolynomial(Polynomial *P)
-{
-    free(P->coeffs);
-    free(P);
+        // update zPow to zPow*zPow
+        zPow = cMul(zPow, zPow);
+    }
+
+    Complex Pz = {ReSum, ImSum};
+
+    return Pz;
 }

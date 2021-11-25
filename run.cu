@@ -1,5 +1,5 @@
-#include "cuda.h"
 #include "newton.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
@@ -12,17 +12,17 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    int NRe = atoi(argv[1]);
-    int NIm = atoi(argv[2]);
+    int NRe    = atoi(argv[1]);
+    int NIm    = atoi(argv[2]);
     char *test = argv[3];
 
-    std::complex<dfloat> *zValsInitial, *zVals;
-    std::complex<dfloat> *h_zValsInitial, *h_zVals;
+    Complex *zValsInitial,   *zVals;
+    Complex *h_zValsInitial, *h_zVals;
 
     Polynomial *P;
     Polynomial *Pprime;
-    std::complex<dfloat> *solns;
-    int *closest;
+    Complex    *solns;
+    int        *closest;
 
     if (strcmp(test, "smallTest") == 0)
     {
@@ -35,18 +35,18 @@ int main(int argc, char **argv)
         int N = NRe*NIm;
 
         // arrays for initial points and points following iteration
-        cudaMalloc(&zValsInitial, N*sizeof(std::complex<dfloat>));
-        cudaMalloc(&zVals,        N*sizeof(std::complex<dfloat>));
+        cudaMalloc(&zValsInitial, N*sizeof(Complex));
+        cudaMalloc(&zVals,        N*sizeof(Complex));
 
-        h_zValsInitial = (std::complex<dfloat> *)malloc(NRe*NIm*sizeof(std::complex<dfloat>));
-        h_zVals        = (std::complex<dfloat> *)malloc(NRe*NIm*sizeof(std::complex<dfloat>));
+        h_zValsInitial = (Complex *)malloc(NRe*NIm*sizeof(Complex));
+        h_zVals        = (Complex *)malloc(NRe*NIm*sizeof(Complex));
 
         // create a polynomial
         int order = 4;
 
         P = (Polynomial *)malloc(sizeof(Polynomial *));
         P->order = order;
-        int coeffs[5] = {1, 2, 3, 4, 5};
+        dfloat coeffs[5] = {1, 2, 3, 4, 5};
         P->coeffs = coeffs;
 
         Pprime = derivative(P);
@@ -60,22 +60,23 @@ int main(int argc, char **argv)
         fillArrays    <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
         newtonIterate <<< G, B>>>    (zVals, P, Pprime, N, 100);
 
-        cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(std::complex<dfloat>), cudaMemcpyDeviceToHost);
-        cudaMemcpy(h_zVals, zVals,               N*sizeof(std::complex<dfloat>), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_zVals, zVals,               N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
-        solns = (std::complex<dfloat> *)malloc(4 * sizeof(std::complex<dfloat>));
+        solns = (Complex *)malloc(order * sizeof(Complex));
 
         // find the solutions to this polynomial
-        findSolns(solns, h_zVals, 4, N);
+        findSolns(solns, h_zVals, order, N);
 
         closest = (int *)malloc(N * sizeof(int));
+        outputToCSV("data.csv", N, h_zVals, closest);
     }
 
     // free memory
-    cudaFree(zVals); cudaFree(zValsInitial);
-    free(h_zVals); free(h_zValsInitial);
+    cudaFree(zVals)  ; cudaFree(zValsInitial);
+    free(h_zVals)    ; free(h_zValsInitial)  ;
     freePolynomial(P); freePolynomial(Pprime);
-    free(solns); free(closest);
+    free(solns)      ; free(closest)         ;
 
     return 0;
 }
