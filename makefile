@@ -1,6 +1,8 @@
-newton: newton.cu
+newton: run.cu newton.cu complex.cu polynomial.cu
 	make setup
-	nvcc -o bin/newton run.cu newton.cu polynomial.cu --expt-relaxed-constexpr
+	nvcc run.cu newton.cu complex.cu polynomial.cu -dc
+	nvcc *.o -o bin/newton
+	rm *.o
 
 setup:
 	if [ ! -d "./bin" ]; then \
