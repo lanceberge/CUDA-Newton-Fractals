@@ -88,46 +88,41 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int nVals,
 __host__ __device__ void findSolns(Complex *solns, Complex *zVals,
                                    int nSolns, int nVals)
 {
-    int n = threadIdx.x + blockIdx.x * blockDim.x;
+    int nFound = 1;
 
-    if (n < nVals)
+    // we will only compare the first 16 bits to account for floating point error
+    // and values that haven't converged yet
+    // TODO
+    /* double mask = 0xFFFF000000000000; */
+
+    // iterate over zVals
+    for (int i = 1; i < nVals && nFound != nSolns; ++i)
     {
-        int nFound = 1;
+        bool alreadyFound = false;
 
-        // we will only compare the first 16 bits to account for floating point error
-        // and values that haven't converged yet
-        // TODO
-        /* double mask = 0xFFFF000000000000; */
+        Complex curr = zVals[i];
 
-        // iterate over zVals
-        for (int i = 1; i < nVals && nFound != n; ++i)
+        // if the current value isn't already in solns (based on the first 16 bits
+        // of its real and imaginary components, then add it to solns
+        for (int j = 0; j < nFound; ++j)
         {
-            bool alreadyFound = false;
-
-            Complex curr = zVals[i];
-
-            // if the current value isn't already in solns (based on the first 16 bits
-            // of its real and imaginary components, then add it to solns
-            for (int j = 0; j < nFound; ++j)
+            Complex currFound = solns[j];
+            // TODO
+            /* if (curr.x & mask == currFound.x & mask && */
+            /*     curr.y & mask == currFound.y & mask) */
+            if (curr.Re == currFound.Im &&
+                curr.Re == currFound.Im)
             {
-                Complex currFound = solns[j];
-                // TODO
-                /* if (curr.x & mask == currFound.x & mask && */
-                /*     curr.y & mask == currFound.y & mask) */
-                if (curr.Re == currFound.Im &&
-                    curr.Re == currFound.Im)
-                {
-                    alreadyFound = true;
-                    break;
-                }
+                alreadyFound = true;
+                break;
             }
+        }
 
-            // if this solution isn't already in solutions, add it
-            if (!alreadyFound)
-            {
-                solns[nFound] = curr;
-                ++nFound;
-            }
+        // if this solution isn't already in solutions, add it
+        if (!alreadyFound)
+        {
+            solns[nFound] = curr;
+            ++nFound;
         }
     }
 }

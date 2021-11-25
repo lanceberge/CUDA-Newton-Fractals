@@ -26,7 +26,7 @@ Polynomial *derivative(Polynomial *P)
 }
 
 // find P(z) - plug in a point z to the polynomial
-__host__ __device__ Complex Pz(Polynomial *P, Complex z);
+__host__ __device__ Complex Pz(Polynomial *P, Complex z)
 {
     dfloat *coeffs = P->coeffs;
     int order = P->order;
@@ -34,7 +34,7 @@ __host__ __device__ Complex Pz(Polynomial *P, Complex z);
     dfloat ReSum = coeffs[order];
     dfloat ImSum = 0;
 
-    Complex zPow = {z.Re, z.Im}
+    Complex zPow = {z.Re, z.Im};
 
     // for A, B, C, D in coeffs. of P, return the cumulative sum of Az^4 + Bz^3 + ...
     for (int i = order-1; i >= 0; --i)
@@ -52,4 +52,10 @@ __host__ __device__ Complex Pz(Polynomial *P, Complex z);
     Complex Pz = {ReSum, ImSum};
 
     return Pz;
+}
+
+void freePolynomial(Polynomial *P)
+{
+    free(P->coeffs);
+    free(P);
 }
