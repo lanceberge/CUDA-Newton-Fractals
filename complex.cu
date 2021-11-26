@@ -11,9 +11,15 @@ __host__ __device__ Complex cMul(Complex z1, Complex z2)
 }
 
 // add two complex numbers
-__host__ __device__ Complex cAdd(Complex z1, Complex z2)
+/* __host__ __device__ Complex cAdd(Complex z1, Complex z2) */
+/* { */
+/*     Complex z = {z1.Re + z2.Re, z1.Im + z2.Im}; */
+/*     return z; */
+/* } */
+
+__host__ __device__ Complex cSub(Complex z1, Complex z2)
 {
-    Complex z = {z1.Re + z2.Re, z1.Im + z2.Im};
+    Complex z = {z1.Re - z2.Re, z1.Im - z2.Im};
     return z;
 }
 

@@ -29,32 +29,7 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, Complex *zValsInitial,
     }
 }
 
-// perform Nit iterations of newton's method with a thread handling
-// each point in zVals
 __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
-                              int N, int Nit)
-{
-    int n = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (n < N)
-    {
-        Complex z = zVals[n];
-
-        // deform Nit iterations of z_i+1 = z_i - P(z_i) / P'(z_i)
-        for (int i = 0; i < Nit; ++i)
-        {
-            // find P(z) and P'(z)
-            Complex P_z      = Pz(P, z);
-            Complex P_primeZ = Pz(Pprime, z);
-
-            z = cAdd(z, cDiv(P_z, P_primeZ));
-        }
-
-        zVals[n] = z;
-    }
-}
-
-__global__ void newtonIterateV2(Complex *zVals, Polynomial P, Polynomial Pprime,
                                 int NRe, int NIm, int Nit)
 {
     int x = threadIdx.x + blockIdx.x*blockDim.x;
@@ -71,7 +46,7 @@ __global__ void newtonIterateV2(Complex *zVals, Polynomial P, Polynomial Pprime,
             Complex P_z      = Pz(P, z);
             Complex P_primeZ = Pz(Pprime, z);
 
-            z = cAdd(z, cDiv(P_z, P_primeZ));
+            z = cSub(z, cDiv(P_z, P_primeZ));
         }
 
         zVals[x + NRe*y] = z;
