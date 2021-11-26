@@ -1,12 +1,12 @@
-newton: run.cu newton.cu complex.cu polynomial.cu
+newton:
 	make setup
-	nvcc run.cu newton.cu complex.cu polynomial.cu -dc
+	nvcc src/run.cu src/newton.cu src/complex.cu src/polynomial.cu -dc
 	nvcc *.o -o bin/newton
 	rm *.o
 
-test: test.cu
+test:
 	make setup
-	nvcc test.cu newton.cu complex.cu polynomial.cu -dc
+	nvcc src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -dc
 	nvcc *.o -o bin/test
 	rm *.o
 	./bin/test
@@ -20,8 +20,12 @@ setup:
 	mkdir data; \
 	fi
 
+	if [ ! -d "./plots" ]; then \
+	mkdir plots; \
+	fi
+
 debug:
-	nvcc -g -G test.cu newton.cu complex.cu polynomial.cu -dc
+	nvcc -g -G src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -dc
 	nvcc -g -G *.o -o bin/test
 	rm *.o
 
