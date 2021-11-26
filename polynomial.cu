@@ -51,6 +51,26 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z)
     return P_z;
 }
 
+// create a device version of host polynomial P
+Polynomial deviceP(Polynomial h_P)
+{
+    Polynomial c_P;
+
+    int order = h_P.order;
+
+    dfloat *c_Pcoeffs;
+    cudaMalloc(&c_Pcoeffs, (order+1)*sizeof(dfloat));
+
+    // copy h_P's coefficients to device array c_P
+    cudaMemcpy(c_Pcoeffs, h_P.coeffs, (order+1)*sizeof(dfloat), cudaMemcpyHostToDevice);
+
+    c_P.coeffs = c_Pcoeffs;
+
+    c_P.order = order;
+
+    return c_P;
+}
+
 void printP(Polynomial P)
 {
     dfloat *coeffs = P.coeffs;

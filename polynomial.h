@@ -19,6 +19,8 @@ Polynomial derivative(Polynomial P);
 // find P(z) - plug in a point z to the polynomial
 __host__ __device__ Complex Pz(Polynomial P, Complex z);
 
+Polynomial deviceP(Polynomial h_P);
+
 void printP(Polynomial P);
 
 #endif

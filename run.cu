@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     int NRe    = atoi(argv[1]);
     int NIm    = atoi(argv[2]);
     char *test = argv[3];
+
     // the spacing on our grid, i.e. 1000 => run iteration on Nx and Ny evenly
     // spaced points from -1000 to 1000 on x and y
     int ReSpacing = 1000;
@@ -67,20 +68,9 @@ int main(int argc, char **argv)
         // it's derivative
         Pprime = derivative(P);
 
-        dfloat *c_Pcoeffs;
-        dfloat *c_Pprimecoeffs;
-
-        cudaMalloc(&c_Pcoeffs, (order+1)*sizeof(dfloat));
-        cudaMalloc(&c_Pprimecoeffs, order*sizeof(dfloat));
-
-        // make sure we have device version of our polynomials
-        cudaMemcpy(c_Pcoeffs,      P.coeffs,     (order+1)*sizeof(dfloat), cudaMemcpyHostToDevice);
-        cudaMemcpy(c_Pprimecoeffs, Pprime.coeffs, order*sizeof(dfloat),    cudaMemcpyHostToDevice);
-
-        c_P.order       = order;
-        c_Pprime.order  = order - 1;
-        c_P.coeffs      = c_Pcoeffs;
-        c_Pprime.coeffs = c_Pprimecoeffs;
+        // device versions for newtonIterate
+        Polynomial c_P      = deviceP(P);
+        Polynomial c_Pprime = deviceP(Pprime);
 
         // fill our arrays with points
         fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
@@ -106,7 +96,7 @@ int main(int argc, char **argv)
         cudaMemcpy(h_closest, closest, N*sizeof(int), cudaMemcpyDeviceToHost);
 
         // output data and solutions to csvs
-        outputToCSV("data.csv", N, h_zVals, h_closest);
+        outputToCSV("data.csv", N, h_zValsInitial, h_closest);
         outputSolnsToCSV("solns.csv", nSolns, h_solns);
     }
 
