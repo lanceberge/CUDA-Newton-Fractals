@@ -1,5 +1,4 @@
 #include "newton.h"
-#include <stdio.h>
 
 int main(int argc, char **argv)
 {
@@ -15,11 +14,6 @@ int main(int argc, char **argv)
     int NRe    = atoi(argv[1]);
     int NIm    = atoi(argv[2]);
     char *test = argv[3];
-
-    // the spacing on our grid, i.e. 1000 => run iteration on Nx and Ny evenly
-    // spaced points from -1000 to 1000 on x and y
-    int ReSpacing = 1000;
-    int ImSpacing = 500;
 
     // total number of points
     int N = NRe*NIm;
@@ -54,6 +48,11 @@ int main(int argc, char **argv)
     if (strcmp(test, "smallTest") == 0)
     {
         int order = 3;
+
+        // the spacing on our grid, i.e. 1000 => run iteration on Nx and Ny evenly
+        // spaced points from -1000 to 1000 on x and y
+        dfloat ReSpacing = 4;
+        dfloat ImSpacing = 4;
 
         // arrays for solutions
         cudaMalloc(&solns, order*sizeof(Complex));

@@ -4,7 +4,7 @@
 #include "polynomial.h"
 
 // fill arrays for points before and after performing the newton iteration on them
-__global__ void fillArrays(int ReSpacing, int ImSpacing, Complex *zValsInitial,
+__global__ void fillArrays(dfloat ReSpacing, dfloat ImSpacing, Complex *zValsInitial,
                 Complex *zVals, int NRe, int NIm);
 
 // perform Nit iterations of newton's method on a polynomial p
