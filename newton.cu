@@ -3,15 +3,15 @@
 #include <stdio.h>
 
 // fill arrays for points before and after performing the newton iteration on them
-__global__ void fillArrays(int ReSpacing, int ImSpacing, Complex *zValsInitial,
+__global__ void fillArrays(dfloat ReSpacing, dfloat ImSpacing, Complex *zValsInitial,
                            Complex *zVals, int NRe, int NIm)
 {
     int x = threadIdx.x + blockDim.x*blockIdx.x;
     int y = threadIdx.y + blockDim.y*blockIdx.y;
 
     // difference in Re and Im values for them to be evenly spaced
-    int dx = ReSpacing*2 / NRe;
-    int dy = ImSpacing*2 / NIm;
+    dfloat dx = ReSpacing*2 / NRe;
+    dfloat dy = ImSpacing*2 / NIm;
 
     if (x < NRe && y < NIm)
     {
