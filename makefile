@@ -16,5 +16,10 @@ setup:
 	mkdir bin; \
 	fi
 
+debug:
+	nvcc -g -G test.cu newton.cu complex.cu polynomial.cu -dc
+	nvcc -g -G *.o -o bin/test
+	rm *.o
+
 runSmallTest:
 	./bin/newton 100 100 smallTest
