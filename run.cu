@@ -23,6 +23,9 @@ int main(int argc, char **argv)
     Polynomial Pprime;
     Complex    *solns;
     int        *closest;
+    Polynomial c_P;
+    Polynomial c_Pprime;
+
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
@@ -52,6 +55,18 @@ int main(int argc, char **argv)
 
         Pprime = derivative(P);
 
+        dfloat *c_Pcoeffs;
+        dfloat *c_Pprimecoeffs;
+
+        cudaMalloc(&c_Pcoeffs, (order+1)*sizeof(dfloat));
+        cudaMalloc(&c_Pprimecoeffs, order*sizeof(dfloat));
+
+        cudaMemcpy(c_Pcoeffs,      P.coeffs,     (order+1)*sizeof(dfloat), cudaMemcpyHostToDevice);
+        cudaMemcpy(c_Pprimecoeffs, Pprime.coeffs, order*sizeof(dfloat),    cudaMemcpyHostToDevice);
+
+        c_P.coeffs      = c_Pcoeffs;
+        c_Pprime.coeffs = c_Pprimecoeffs;
+
         int B = 256;
         int G = N + B - 1 / B;
 
@@ -59,8 +74,7 @@ int main(int argc, char **argv)
         dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
 
         fillArrays      <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-        newtonIterateV2 <<< G2, B2 >>> (zVals, P, Pprime, NRe, NIm, 1);
-        /* newtonIterate <<< G,  B >>>  (zVals, P, Pprime, N, 1); */
+        newtonIterateV2 <<< G2, B2 >>> (zVals, c_P, c_Pprime, NRe, NIm, 1);
 
         cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
         cudaMemcpy(h_zVals,        zVals,        N*sizeof(Complex), cudaMemcpyDeviceToHost);
@@ -76,8 +90,9 @@ int main(int argc, char **argv)
     }
 
     // free memory
-    cudaFree(zVals); cudaFree(zValsInitial);
-    free(h_zVals)  ; free(h_zValsInitial)  ;
+    cudaFree(zVals)   ; cudaFree(zValsInitial) ;
+    free(h_zVals)     ; free(h_zValsInitial)   ;
+    cudaFree(c_P.coeffs); cudaFree(c_Pprime.coeffs);
     /* free(solns)    ; free(closest)         ; */
 
     return 0;
