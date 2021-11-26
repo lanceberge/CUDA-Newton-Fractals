@@ -96,8 +96,8 @@ int main(int argc, char **argv)
         cudaMemcpy(h_closest, closest, N*sizeof(int), cudaMemcpyDeviceToHost);
 
         // output data and solutions to csvs
-        outputToCSV("data.csv", N, h_zValsInitial, h_closest);
-        outputSolnsToCSV("solns.csv", nSolns, h_solns);
+        outputToCSV("data/smallData.csv", N, h_zValsInitial, h_closest);
+        outputSolnsToCSV("data/smallSolns.csv", nSolns, h_solns);
     }
 
     // free memory

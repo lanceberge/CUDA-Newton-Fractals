@@ -16,6 +16,10 @@ setup:
 	mkdir bin; \
 	fi
 
+	if [ ! -d "./data" ]; then \
+	mkdir data; \
+	fi
+
 debug:
 	nvcc -g -G test.cu newton.cu complex.cu polynomial.cu -dc
 	nvcc -g -G *.o -o bin/test
