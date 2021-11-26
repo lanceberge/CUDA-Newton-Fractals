@@ -4,6 +4,7 @@
 #define dfloat double
 
 #include "cuda.h"
+#include <stdio.h>
 
 typedef struct Complex
 {
@@ -19,5 +20,7 @@ __host__ __device__ Complex cAdd(Complex z1, Complex z2);
 
 // divide two complex numbers
 __host__ __device__ Complex cDiv(Complex z1, Complex z2);
+
+void printComplex(Complex z);
 
 #endif
