@@ -1,3 +1,4 @@
+clf;
 df = csvread('../data/smallData.csv', 1);
 solns = csvread('../data/smallSolns.csv', 1);
 
@@ -12,7 +13,7 @@ soln_vals = (1:length(solns))';
 soln_colors = color_map(soln_vals, :);
 df_colors = color_map(df(:,3)+1, :);
 
-pointsize = 20;
+pointsize = 100;
 
 scatter(df(:,1), df(:,2), pointsize, df_colors, 'filled');
 hold on;
@@ -22,3 +23,6 @@ scatter(solns(:,1), solns(:,2), pointsize+10, soln_colors, ...
 
 xlabel("Re");
 ylabel("Im");
+
+print('../plots/smallPlot.pdf', '-dpdf', '-bestfit', '-painters');
+% movefile('smallPlot.pdf', '../plots/smallPlot.pdff');
