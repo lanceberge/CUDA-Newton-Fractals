@@ -24,6 +24,8 @@ int main(int argc, char **argv)
     Complex    *solns;
     int        *closest;
 
+    // test on -4x^3 + 6x^2 + 2x = 0, which has roots
+    // 0, ~1.78, ~-.28
     if (strcmp(test, "smallTest") == 0)
     {
         // the spacing on our grid, i.e. 1000 => run iteration on Nx and Ny evenly
@@ -42,10 +44,10 @@ int main(int argc, char **argv)
         h_zVals        = (Complex *)malloc(NRe*NIm*sizeof(Complex));
 
         // create a polynomial
-        int order = 4;
+        int order = 3;
 
         P.order = order;
-        dfloat coeffs[5] = {1, 2, 3, 4, 5};
+        dfloat coeffs[4] = {-4, 6, 2, 0};
         P.coeffs = coeffs;
 
         Pprime = derivative(P);
@@ -56,26 +58,27 @@ int main(int argc, char **argv)
         dim3 B2(16, 16, 1);
         dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
 
-        fillArrays    <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-        newtonIterate <<< G, B>>>    (zVals, P, Pprime, N, 100);
+        fillArrays      <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+        newtonIterateV2 <<< G2, B2 >>> (zVals, P, Pprime, NRe, NIm, 1);
+        /* newtonIterate <<< G,  B >>>  (zVals, P, Pprime, N, 1); */
 
         cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
         cudaMemcpy(h_zVals,        zVals,        N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
-        solns = (Complex *)malloc(order * sizeof(Complex));
+        /* solns = (Complex *)malloc(order * sizeof(Complex)); */
 
         // find the solutions to this polynomial
-        int nSolns = findSolns(solns, h_zVals, order, N);
+        /* int nSolns = findSolns(solns, h_zVals, order, N); */
 
         closest = (int *)malloc(N * sizeof(int));
         outputToCSV("data.csv", N, h_zVals, closest);
-        outputSolnsToCSV("solns.csv", nSolns, solns);
+        /* outputSolnsToCSV("solns.csv", nSolns, solns); */
     }
 
     // free memory
-    cudaFree(zVals) ; cudaFree(zValsInitial);
-    free(h_zVals)   ; free(h_zValsInitial)  ;
-    free(solns)     ; free(closest)         ;
+    cudaFree(zVals); cudaFree(zValsInitial);
+    free(h_zVals)  ; free(h_zValsInitial)  ;
+    /* free(solns)    ; free(closest)         ; */
 
     return 0;
 }

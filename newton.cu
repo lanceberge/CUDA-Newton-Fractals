@@ -44,13 +44,38 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
         for (int i = 0; i < Nit; ++i)
         {
             // find P(z) and P'(z)
-            Complex P_z      = Pz(Pprime, z);
-            Complex P_primeZ = Pz(P, z);
+            Complex P_z      = Pz(P, z);
+            Complex P_primeZ = Pz(Pprime, z);
 
             z = cAdd(z, cDiv(P_z, P_primeZ));
         }
 
         zVals[n] = z;
+    }
+}
+
+__global__ void newtonIterateV2(Complex *zVals, Polynomial P, Polynomial Pprime,
+                                int NRe, int NIm, int Nit)
+{
+    int x = threadIdx.x + blockIdx.x*blockDim.x;
+    int y = threadIdx.y + blockIdx.y*blockDim.y;
+
+    if (x < NRe && y < NIm)
+    {
+        Complex z = zVals[x + NRe*y];
+
+        // perform Nit iterations of z_i+1 = z_i - P(z_i) / P'(z_i)
+        for (int i = 0; i < Nit; ++i)
+        {
+            // find P(z) and P'(z)
+            // TODO
+            Complex P_z      = Pz(P, z);
+            Complex P_primeZ = Pz(Pprime, z);
+
+            z = cAdd(z, cDiv(P_z, P_primeZ));
+        }
+
+        zVals[x + NRe*y] = z;
     }
 }
 

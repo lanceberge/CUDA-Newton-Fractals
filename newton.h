@@ -11,6 +11,9 @@ __global__ void fillArrays(int ReSpacing, int ImSpacing, Complex *zValsInitial,
 __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
                               int N, int Nit);
 
+__global__ void newtonIterateV2(Complex *zVals, Polynomial P, Polynomial Pprime,
+                                int NRe, int NIm, int Nit);
+
 __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
                                    int nSolns, int nVals);
 // L2 distance between two points
