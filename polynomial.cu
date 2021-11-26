@@ -7,7 +7,7 @@ Polynomial derivative(Polynomial P)
     int order = P.order;
 
     Polynomial Pprime;
-    Pprime.coeffs = (dfloat *)malloc(order * sizeof(dfloat));
+    Pprime.coeffs = (dfloat *)calloc(order, sizeof(dfloat));
     Pprime.order = order - 1;
 
     dfloat *coeffs = P.coeffs;
@@ -36,7 +36,7 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z)
     // for A, B, C, D in coeffs. of P, return the cumulative sum of Az^4 + Bz^3 + ...
     for (int i = order-1; i >= 0; --i)
     {
-        int coeff = coeffs[order];
+        int coeff = coeffs[i];
 
         // zPow = z, then z^2, then z^3, etc.
         ReSum += coeff*zPow.Re;
@@ -46,9 +46,9 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z)
         zPow = cMul(zPow, z);
     }
 
-    Complex Pz = {ReSum, ImSum};
+    Complex P_z = {ReSum, ImSum};
 
-    return Pz;
+    return P_z;
 }
 
 void printP(Polynomial P)

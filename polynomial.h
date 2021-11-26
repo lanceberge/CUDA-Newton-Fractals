@@ -3,7 +3,6 @@
 
 /* #include "cuComplex.h" */
 #include "complex.h"
-#include <stdio.h>
 
 // a struct representing polynomials - i.e. the polynomial Ax^3 + Cx + D
 // would have order=3 and coeffs=[A,0,C,D]
