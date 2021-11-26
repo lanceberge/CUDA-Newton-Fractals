@@ -60,31 +60,22 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
                                    int nSolns, int nVals)
 {
-    int nFound = 1;
-
-    // we will only compare the first 16 bits to account for floating point error
-    // and values that haven't converged yet
-    // TODO
-    /* double mask = 0xFFFF000000000000; */
+    int nFound = 0;
 
     // iterate over zVals
-    for (int i = 1; i < nVals && nFound != nSolns; ++i)
+    for (int i = 0; i < nVals && nFound != nSolns; ++i)
     {
         bool alreadyFound = false;
 
         Complex curr = zVals[i];
 
-        // if the current value isn't already in solns (based on the first 16 bits
-        // of its real and imaginary components, then add it to solns
+        // if the current value isn't already in solns, then add it to solns
         for (int j = 0; j < nFound; ++j)
         {
             Complex currFound = solns[j];
-            // TODO
-            /* if (curr.x & mask == currFound.x & mask && */
-            /*     curr.y & mask == currFound.y & mask) */
-            if (curr.Re == currFound.Im &&
-                curr.Re == currFound.Im)
-            {
+            if (fabs(curr.Re - currFound.Re) < 1e-10 &&
+                fabs(curr.Im - currFound.Im) < 1e-10) {
+
                 alreadyFound = true;
                 break;
             }
@@ -102,29 +93,30 @@ __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
 }
 
 // for each solution in zVals, find the solution it's closest to based on L1 distance
-__global__ void findClosestSoln(int *closest, Complex *zVals, int nVals,
+__global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
                                 Complex *solns, int nSolns)
 {
-    int n = threadIdx.x + blockIdx.x * blockDim.x;
+    int x = threadIdx.x + blockIdx.x * blockDim.x;
+    int y = threadIdx.y + blockIdx.y * blockDim.y;
 
-    if (n < nVals)
+    if (x < NRe && y < NIm)
     {
-        dfloat dist = L2Distance(solns[0], zVals[n]);
+        Complex z = zVals[x + NRe*y];
+        dfloat dist = L2Distance(solns[0], z);
         int idx = 0;
 
         for (int i = 1; i < nSolns; ++i)
         {
-            dfloat currDist = L2Distance(solns[i], zVals[n]);
+            dfloat currDist = L2Distance(solns[i], z);
 
             if (currDist < dist)
             {
                 dist = currDist;
                 idx = i;
             }
-
         }
 
-        closest[n] = idx;
+        closest[x + NRe*y] = idx;
     }
 }
 

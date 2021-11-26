@@ -13,6 +13,10 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 
 __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
                                    int nSolns, int nVals);
+
+__global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
+                                Complex *solns, int nSolns);
+
 // L2 distance between two points
 __host__ __device__ dfloat L2Distance(Complex z1, Complex z2);
 
