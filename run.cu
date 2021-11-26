@@ -64,6 +64,8 @@ int main(int argc, char **argv)
         cudaMemcpy(c_Pcoeffs,      P.coeffs,     (order+1)*sizeof(dfloat), cudaMemcpyHostToDevice);
         cudaMemcpy(c_Pprimecoeffs, Pprime.coeffs, order*sizeof(dfloat),    cudaMemcpyHostToDevice);
 
+        c_P.order = order;
+        c_Pprime.order = order - 1;
         c_P.coeffs      = c_Pcoeffs;
         c_Pprime.coeffs = c_Pprimecoeffs;
 

@@ -68,7 +68,6 @@ __global__ void newtonIterateV2(Complex *zVals, Polynomial P, Polynomial Pprime,
         for (int i = 0; i < Nit; ++i)
         {
             // find P(z) and P'(z)
-            // TODO
             Complex P_z      = Pz(P, z);
             Complex P_primeZ = Pz(Pprime, z);
 
