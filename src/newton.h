@@ -20,4 +20,6 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
 // L2 distance between two points
 __host__ __device__ dfloat L2Distance(Complex z1, Complex z2);
 
+__host__ __device__ dfloat L1Distance(Complex z1, Complex z2);
+
 #endif

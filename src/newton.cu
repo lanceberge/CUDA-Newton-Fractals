@@ -128,3 +128,12 @@ __host__ __device__ dfloat L2Distance(Complex z1, Complex z2)
 
     return sqrt((ReDiff*ReDiff) + (ImDiff*ImDiff));
 }
+
+// compute the L1 distance between two points
+__host__ __device__ dfloat L1Distance(Complex z1, Complex z2)
+{
+    dfloat ReDiff = z1.Re - z2.Re;
+    dfloat ImDiff = z1.Im - z2.Im;
+
+    return ReDiff + ImDiff;
+}
