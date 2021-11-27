@@ -126,8 +126,7 @@ int main(int argc, char **argv)
         }
     }
 
-    else
-        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
+    outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
