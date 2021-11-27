@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         int max = 50;
         int seed = 654321;
 
-        order = 11;
+        order = 12;
 
         ReSpacing = 15;
         ImSpacing = 5;
