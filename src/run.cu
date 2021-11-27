@@ -108,9 +108,6 @@ int main(int argc, char **argv)
     dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
 
     fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-
-    cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // perform 1000 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
@@ -122,29 +119,30 @@ int main(int argc, char **argv)
     NRe = atoi(argv[1]);
     NIm = atoi(argv[2]);
 
+    N = NRe*NIm;
+
+    dim3 B2(16, 16, 1);
+    dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+
+    // reset arrays
+    cudaFree(zValsInitial); free(h_zValsInitial);
+    cudaFree(zVals)       ; free(h_zVals)       ;
+
+    // arrays for initial points and points following iteration
+    cudaMalloc(&zValsInitial, N*sizeof(Complex));
+    cudaMalloc(&zVals,        N*sizeof(Complex));
+
+    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
+    h_zVals        = (Complex *)malloc(N*sizeof(Complex));
+
+    fillArrays <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+
+    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+
     // output solutions to file and store them
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
-        // reset arrays
-        cudaFree(zValsInitial); free(h_zValsInitial);
-        cudaFree(zVals)       ; free(h_zVals)       ;
-
-        N = NRe*NIm;
-
-        dim3 B(16, 16, 1);
-        dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-
-        // arrays for initial points and points following iteration
-        cudaMalloc(&zValsInitial, N*sizeof(Complex));
-        cudaMalloc(&zVals,        N*sizeof(Complex));
-
-        h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-        h_zVals        = (Complex *)malloc(N*sizeof(Complex));
-
-        fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-
-        cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
-        cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
         for (int i = 0; i < 100; ++i)
         {
@@ -155,8 +153,10 @@ int main(int argc, char **argv)
     }
 
     else
+    {
+        iterate(c_P, c_Pprime, 100, zVals, h_zVals);
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
-
+    }
 
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
