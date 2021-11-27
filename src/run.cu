@@ -117,24 +117,22 @@ int main(int argc, char **argv)
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
 
-    cudaFree(zValsInitial); free(h_zValsInitial);
-    cudaFree(zVals); free(h_zVals);
-
-    N = NRe*NIm;
-
-    // arrays for initial points and points following iteration
-    cudaMalloc(&zValsInitial, N*sizeof(Complex));
-    cudaMalloc(&zVals,        N*sizeof(Complex));
-
-    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-    h_zVals        = (Complex *)malloc(N*sizeof(Complex));
-
-    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-
     // output solutions to file and store them
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
         // reset arrays
+        cudaFree(zValsInitial); free(h_zValsInitial);
+        cudaFree(zVals); free(h_zVals);
+
+        N = NRe*NIm;
+
+        // arrays for initial points and points following iteration
+        cudaMalloc(&zValsInitial, N*sizeof(Complex));
+        cudaMalloc(&zVals,        N*sizeof(Complex));
+
+        h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
+        h_zVals        = (Complex *)malloc(N*sizeof(Complex));
+
         fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
         cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
