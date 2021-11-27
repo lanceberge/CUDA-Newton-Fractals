@@ -71,6 +71,25 @@ Polynomial deviceP(Polynomial h_P)
     return c_P;
 }
 
+Polynomial randomPolynomial(int order, int max, int seed)
+{
+    srand48(seed);
+
+    Polynomial P;
+
+    dfloat *coeffs = (dfloat *)malloc((order + 1)*sizeof(dfloat));
+
+    for (int i = 0; i < order + 1; ++i)
+    {
+        coeffs[i] = -max + 2*max*(drand48());
+    }
+
+    P.coeffs = coeffs;
+    P.order = order;
+
+    return P;
+}
+
 void printP(Polynomial P)
 {
     dfloat *coeffs = P.coeffs;
