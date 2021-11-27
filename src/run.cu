@@ -4,13 +4,10 @@
 
 static int NRe;
 static int NIm;
-static int ReSpacing;
-static int ImSpacing;
 
 void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals);
 
-void outputSolns(Complex *h_zVals, Complex *h_zValsInitial,
-                 Complex **h_solns, int nSolns, std::string filename);
+void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename);
 
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
                 int nSolns, std::string filename, int step=-1);
@@ -27,11 +24,7 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    NRe        = atoi(argv[1]);
-    NIm        = atoi(argv[2]);
     char *test = argv[3];
-
-    int N = NRe*NIm;
 
     Polynomial P;
 
@@ -39,9 +32,9 @@ int main(int argc, char **argv)
     Complex *zVals;
     int order;
 
+    dfloat ReSpacing;
+    dfloat ImSpacing;
 
-    dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
@@ -100,7 +93,9 @@ int main(int argc, char **argv)
 
     Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
 
-    N = 1000*1000;
+    NRe = 1000;
+    NIm = 1000;
+    int N = NRe*NIm;
 
     // arrays for initial points and points following iteration
     cudaMalloc(&zValsInitial, N*sizeof(Complex));
@@ -109,21 +104,30 @@ int main(int argc, char **argv)
     Complex *h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
     Complex *h_zVals        = (Complex *)malloc(N*sizeof(Complex));
 
+    dim3 B(16, 16, 1);
+    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+
     fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
 
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // perform 1000 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
 
-    outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
+    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+
+    outputSolns(h_zVals, &h_solns, order, N, test);
+
+    NRe = atoi(argv[1]);
+    NIm = atoi(argv[2]);
 
     // output solutions to file and store them
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
         // reset arrays
         cudaFree(zValsInitial); free(h_zValsInitial);
-        cudaFree(zVals); free(h_zVals);
+        cudaFree(zVals)       ; free(h_zVals)       ;
 
         N = NRe*NIm;
 
@@ -137,6 +141,7 @@ int main(int argc, char **argv)
         fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
         cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
         for (int i = 0; i < 100; ++i)
         {
@@ -162,7 +167,7 @@ int main(int argc, char **argv)
 void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals)
 {
     dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+    dim3 G((NRe + 16 - 1)/16, (NIm + 16 - 1)/16);
 
     // then perform the newton iteration and copy result back to host
     newtonIterate <<< G, B >>> (zVals, c_P, c_Pprime, NRe, NIm, Nits);
@@ -171,17 +176,28 @@ void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Comp
     cudaMemcpy(h_zVals, zVals, NRe*NIm*sizeof(Complex), cudaMemcpyDeviceToHost);
 }
 
-void outputSolns(Complex *h_zVals, Complex *h_zValsInitial,
-                 Complex **h_solns, int nSolns, std::string filename)
+void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename)
 {
     // total number of points
     // find the solutions to this polynomial - the unique points in zVals
     *h_solns = (Complex *)malloc(nSolns * sizeof(Complex));
-    nSolns = findSolns(*h_solns, h_zVals, nSolns, NRe*NIm);
+    nSolns = findSolns(*h_solns, h_zVals, nSolns, N);
 
-    std::string solnFilename   = "data/"+filename+"Solns.csv";
+    std::string solnFilename = "data/"+filename+"Solns.csv";
 
-    outputSolnsToCSV(solnFilename.c_str(), nSolns, *h_solns);
+    FILE *fp = fopen(solnFilename.c_str(), "w");
+
+    // print our header
+    fprintf(fp, "Re, Im\n");
+
+    Complex *solns = *h_solns;
+
+    for (int i = 0; i < nSolns; ++i)
+    {
+        fprintf(fp, "%f, %f\n", solns[i].Re, solns[i].Im);
+    }
+
+    fclose(fp);
 }
 
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
@@ -208,13 +224,19 @@ void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_z
 
     // output data and solutions to CSVs
     std::string outputFilename;
+
     if (step == -1)
         outputFilename = "data/"+filename+"Data.csv";
 
     else
         outputFilename = "data/"+filename+"Data-"+std::to_string(step)+".csv";
 
-    outputToCSV(outputFilename.c_str(), NRe*NIm, h_zValsInitial, h_closest);
+    FILE *fp = fopen(outputFilename.c_str(), "w");
+
+    for (int i = 0; i < NRe*NIm; ++i)
+        fprintf(fp, "%f, %f, %d\n", h_zVals[i].Re, h_zVals[i].Im, h_closest[i]);
+
+    fclose(fp);
 
     cudaFree(closest); free(h_closest);
     cudaFree(solns);
