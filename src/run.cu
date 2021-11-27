@@ -88,8 +88,8 @@ int main(int argc, char **argv)
 
         order = 50;
 
-        ReSpacing = 15;
-        ImSpacing = 5;
+        ReSpacing = 50;
+        ImSpacing = 25;
         P = randomPolynomial(order, max, seed);
     }
 
