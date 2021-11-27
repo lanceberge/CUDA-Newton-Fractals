@@ -10,7 +10,7 @@ void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Comp
 void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename);
 
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename, int step=-1);
+                int nSolns, std::string filename, int norm, int step=-1);
 
 int main(int argc, char **argv)
 {
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     }
 
     // random polynomial of order 7
-    else if (strcmp(test, "bigTest") == 0)
+    else if (strcmp(test, "bigTest") == 0 || strcmp(test, "bigTestL1") == 0)
     {
         int max = 10;
         int seed = 123456;
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     }
 
     // order 12
-    else if (strcmp(test, "bigTest2") == 0)
+    else if (strcmp(test, "bigTest2") == 0 || strcmp(test, "bigTest2L1") == 0)
     {
         // create a random order 11 polynomial
         int max = 50;
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
         P = randomPolynomial(order, max, seed);
     }
 
-    else if (strcmp(test, "bigTest3") == 0)
+    else if (strcmp(test, "bigTest3") == 0 || strcmp(test, "bigTest3L1") == 0)
     {
         // create a random order 11 polynomial
         int max = 100;
@@ -154,14 +154,23 @@ int main(int argc, char **argv)
     cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
+    int norm;
+
     // output solutions to file and store them
-    if (argc >= 5 && strcmp(argv[4], "step") == 0)
+    if (argc > 4 && strcmp(argv[4], "L1") == 0 ||
+        argc > 5 && strcmp(argv[5], "L1") == 0)
+        norm = 1;
+
+    else
+        norm = 2;
+
+    if (argc > 4 && strcmp(argv[4], "step") == 0)
     {
 
         for (int i = 0; i < 100; ++i)
         {
             // output then perform 1 iteration
-            outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, i);
+            outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, norm, i);
             iterate(c_P, c_Pprime, 1, zVals, h_zVals);
         }
     }
@@ -170,7 +179,7 @@ int main(int argc, char **argv)
     {
         //otherwise, perform 100 iterations then output
         iterate(c_P, c_Pprime, 100, zVals, h_zVals);
-        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
+        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, norm);
     }
 
     cudaFree(zVals)          ; free(h_zVals)       ;
@@ -223,7 +232,7 @@ void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::st
 // find the solutions each val in h_zVals is closest to, then output the index of that solution,
 // along with the corresponding initial point to a CSV
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename, int step)
+                int nSolns, std::string filename, int norm, int step)
 {
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
@@ -235,7 +244,7 @@ void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_z
     cudaMalloc(&solns, nSolns*sizeof(Complex));
     cudaMemcpy(solns, h_solns, nSolns*sizeof(Complex), cudaMemcpyHostToDevice);
 
-    findClosestSoln <<< G, B >>> (closest, zVals, NRe, NIm, solns, nSolns);
+    findClosestSoln <<< G, B >>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
 
     // fill *closest with an integer corresponding to the solution its closest to
     // i.e. 0 for if this point is closest to solns[0]

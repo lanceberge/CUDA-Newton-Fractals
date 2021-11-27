@@ -96,7 +96,7 @@ __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
 
 // for each solution in zVals, find the solution it's closest to based on L1 distance
 __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
-                                Complex *solns, int nSolns)
+                                Complex *solns, int nSolns, int norm)
 {
     int x = threadIdx.x + blockIdx.x * blockDim.x;
     int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -104,12 +104,26 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
     if (x < NRe && y < NIm)
     {
         Complex z = zVals[x + NRe*y];
-        dfloat dist = L2Distance(solns[0], z);
+        dfloat dist ;
+
+        if (norm == 1)
+            dist = L1Distance(solns[0], z);
+
+        else
+            dist = L2Distance(solns[0], z);
+
         int idx = 0;
 
         for (int i = 1; i < nSolns; ++i)
         {
-            dfloat currDist = L2Distance(solns[i], z);
+            dfloat currDist;
+
+            if (norm == 1)
+                currDist = L1Distance(solns[i], z);
+
+            else
+                currDist = L2Distance(solns[i], z);
+
 
             if (currDist < dist)
             {
@@ -137,5 +151,5 @@ __host__ __device__ dfloat L1Distance(Complex z1, Complex z2)
     dfloat ReDiff = z1.Re - z2.Re;
     dfloat ImDiff = z1.Im - z2.Im;
 
-    return ReDiff + ImDiff;
+    return fabs(ReDiff) + fabs(ImDiff);
 }
