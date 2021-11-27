@@ -35,7 +35,6 @@ int main(int argc, char **argv)
     dfloat ReSpacing;
     dfloat ImSpacing;
 
-
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
     if (strcmp(test, "smallTest") == 0)
@@ -53,6 +52,7 @@ int main(int argc, char **argv)
         ImSpacing = 4;
     }
 
+    // random polynomial of order 7
     else if (strcmp(test, "bigTest") == 0)
     {
         int max = 10;
@@ -66,6 +66,7 @@ int main(int argc, char **argv)
         ImSpacing = 4;
     }
 
+    // order 12
     else if (strcmp(test, "bigTest2") == 0)
     {
         // create a random order 11 polynomial
@@ -154,6 +155,7 @@ int main(int argc, char **argv)
 
     else
     {
+        //otherwise, perform 100 iterations then output
         iterate(c_P, c_Pprime, 100, zVals, h_zVals);
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
     }
@@ -167,6 +169,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
+// perform Nits iterations and copy result back to host
 void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals)
 {
     dim3 B(16, 16, 1);
@@ -179,6 +182,7 @@ void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Comp
     cudaMemcpy(h_zVals, zVals, NRe*NIm*sizeof(Complex), cudaMemcpyDeviceToHost);
 }
 
+// find the solutions given h_zVals and output to CSV
 void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename)
 {
     // total number of points
@@ -203,6 +207,8 @@ void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::st
     fclose(fp);
 }
 
+// find the solutions each val in h_zVals is closest to, then output the index of that solution,
+// along with the corresponding initial point to a CSV
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
                 int nSolns, std::string filename, int step)
 {
