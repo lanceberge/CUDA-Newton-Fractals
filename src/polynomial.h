@@ -21,6 +21,8 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z);
 
 Polynomial deviceP(Polynomial h_P);
 
+Polynomial randomPolynomial(int order, int max, int seed);
+
 void printP(Polynomial P);
 
 #endif
