@@ -40,3 +40,9 @@ runSmallTestStep:
 
 runBigTestStep:
 	./bin/newton 100 100 bigTest step
+
+runBigTest2:
+	./bin/newton 500 500 bigTest2
+
+runBigTest2Step:
+	./bin/newton 100 100 bigTest2 step
