@@ -131,6 +131,9 @@ int main(int argc, char **argv)
 
         N = NRe*NIm;
 
+        dim3 B(16, 16, 1);
+        dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+
         // arrays for initial points and points following iteration
         cudaMalloc(&zValsInitial, N*sizeof(Complex));
         cudaMalloc(&zVals,        N*sizeof(Complex));
@@ -234,7 +237,7 @@ void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_z
     FILE *fp = fopen(outputFilename.c_str(), "w");
 
     for (int i = 0; i < NRe*NIm; ++i)
-        fprintf(fp, "%f, %f, %d\n", h_zVals[i].Re, h_zVals[i].Im, h_closest[i]);
+        fprintf(fp, "%f, %f, %d\n", h_zValsInitial[i].Re, h_zValsInitial[i].Im, h_closest[i]);
 
     fclose(fp);
 
