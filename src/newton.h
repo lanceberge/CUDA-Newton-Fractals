@@ -17,7 +17,7 @@ __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
 
 // for each val in zVals, find the solution in solns it's closest to
 __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
-                                Complex *solns, int nSolns);
+                                Complex *solns, int nSolns, int norm);
 
 // L2 distance between two points
 __host__ __device__ dfloat L2Distance(Complex z1, Complex z2);
