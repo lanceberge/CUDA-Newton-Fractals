@@ -113,12 +113,12 @@ int main(int argc, char **argv)
 
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
-    cudaFree(zValsInitial); free(h_zValsInitial);
-    cudaFree(zVals); free(h_zVals);
-
     // perform 1000 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
+
+    cudaFree(zValsInitial); free(h_zValsInitial);
+    cudaFree(zVals); free(h_zVals);
 
     N = NRe*NIm;
 
