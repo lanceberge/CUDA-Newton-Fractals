@@ -31,3 +31,6 @@ debug:
 
 runSmallTest:
 	./bin/newton 100 100 smallTest
+
+runBigTest:
+	./bin/newton 1000 1000 bigTest
