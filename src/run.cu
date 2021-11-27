@@ -68,22 +68,28 @@ int main(int argc, char **argv)
 
     else if (strcmp(test, "bigTest") == 0)
     {
-        // create a random order 7 polynomial
-        srand48(123456);
-
+        int max = 10;
+        int seed = 123456;
         order = 7;
-        dfloat *coeffs = (dfloat *)malloc((order + 1)*sizeof(dfloat));
 
-        for (int i = 0; i < order + 1; ++i)
-        {
-            coeffs[i] = -10 + 20*(drand48());
-        }
-
-        P.coeffs = coeffs;
-        P.order = order;
+        // create a random order 7 polynomial
+        P = randomPolynomial(order, max, seed);
 
         ReSpacing = 4;
         ImSpacing = 4;
+    }
+
+    else if (strcmp(test, "bigTest2") == 0)
+    {
+        // create a random order 11 polynomial
+        int max = 50;
+        int seed = 654321;
+
+        order = 11;
+
+        ReSpacing = 15;
+        ImSpacing = 5;
+        P = randomPolynomial(order, max, seed);
     }
 
     else
@@ -106,11 +112,10 @@ int main(int argc, char **argv)
 
 
     // perform 100 iterations then output solutions
-    iterate(c_P, c_Pprime, 100, zVals, h_zVals);
+    iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
 
     // output solutions to file and store them
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
-    outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
@@ -126,6 +131,9 @@ int main(int argc, char **argv)
             iterate(c_P, c_Pprime, 1, zVals, h_zVals);
         }
     }
+
+    else
+        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
 
     cudaFree(zVals)          ; free(h_zVals)       ;
