@@ -110,7 +110,6 @@ int main(int argc, char **argv)
 
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
-
     // perform 100 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
 
@@ -132,8 +131,7 @@ int main(int argc, char **argv)
         }
     }
 
-    else
-        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
+    outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
 
     cudaFree(zVals)          ; free(h_zVals)       ;
