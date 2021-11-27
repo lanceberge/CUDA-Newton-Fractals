@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
-    if (strcmp(test, "smallTest") == 0)
+    if (strcmp(test, "smallTest") == 0 || strcmp(test, "smallTestL1") == 0)
     {
         order = 3;
 
