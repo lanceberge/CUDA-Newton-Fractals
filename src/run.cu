@@ -1,5 +1,6 @@
 #include "newton.h"
 #include <string>
+#include <stdlib.h>
 
 static int NRe;
 static int NIm;
@@ -12,16 +13,17 @@ void outputSolns(Complex *h_zVals, Complex *h_zValsInitial,
                  Complex **h_solns, int nSolns, std::string filename);
 
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename);
+                int nSolns, std::string filename, int step=-1);
 
 int main(int argc, char **argv)
 {
     if (argc < 4)
     {
-        printf("Usage: ./newton {NRe} {NIm} {Test}\n");
-        printf("NRe - Number of real points to run iteration on\n");
-        printf("NIm - number of imaginary points to run iteration on\n");
+        printf("Usage: ./newton <NRe> <NIm> <Test> [step]\n");
+        printf("NRe  - Number of real points to run iteration on\n");
+        printf("NIm  - number of imaginary points to run iteration on\n");
         printf("Test - Which test to run\n");
+        printf("Step - optional, use to output at each step\n");
         exit(-1);
     }
 
@@ -101,32 +103,36 @@ int main(int argc, char **argv)
     fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_zVals,        zVals,        N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
-    // output solutions to file and store them
 
+    // perform 100 iterations then output solutions
     iterate(c_P, c_Pprime, 100, zVals, h_zVals);
 
+    // output solutions to file and store them
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
 
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
+        // reset arrays
         fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+
+        cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
         for (int i = 0; i < 100; ++i)
         {
+            // output then perform 1 iteration
+            outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, i);
             iterate(c_P, c_Pprime, 1, zVals, h_zVals);
-            /* outputVals( */
         }
     }
 
     else
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
-    cudaFree(zVals)          ; free(h_zVals)      ;
-    cudaFree(zValsInitial)   ; free(h_zValsInitial)      ;
-    cudaFree(c_P.coeffs)     ; free(P.coeffs)     ;
-    cudaFree(c_Pprime.coeffs); free(Pprime.coeffs);
+    cudaFree(zVals)          ; free(h_zVals)       ;
+    cudaFree(zValsInitial)   ; free(h_zValsInitial);
+    cudaFree(c_P.coeffs)     ; free(P.coeffs)      ;
+    cudaFree(c_Pprime.coeffs);
 
     free(h_solns);
     return 0;
@@ -158,7 +164,7 @@ void outputSolns(Complex *h_zVals, Complex *h_zValsInitial,
 }
 
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename)
+                int nSolns, std::string filename, int step)
 {
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
@@ -180,7 +186,13 @@ void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_z
     cudaMemcpy(h_closest, closest, NRe*NIm*sizeof(int), cudaMemcpyDeviceToHost);
 
     // output data and solutions to CSVs
-    std::string outputFilename = "data/"+filename+"Data.csv";
+    std::string outputFilename;
+    if (step == -1)
+        outputFilename = "data/"+filename+"Data.csv";
+
+    else
+        outputFilename = "data/"+filename+"Data-"+std::to_string(step)+".csv";
+
 
     outputToCSV(outputFilename.c_str(), NRe*NIm, h_zValsInitial, h_closest);
 
