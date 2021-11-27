@@ -106,11 +106,11 @@ int main(int argc, char **argv)
 
     Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
 
-    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, 1000, 1000);
 
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
-    // perform 100 iterations then output solutions
+    // perform 1000 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
 
     // output solutions to file and store them
@@ -131,7 +131,8 @@ int main(int argc, char **argv)
         }
     }
 
-    outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
+    else
+        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
 
     cudaFree(zVals)          ; free(h_zVals)       ;
@@ -197,7 +198,6 @@ void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_z
 
     else
         outputFilename = "data/"+filename+"Data-"+std::to_string(step)+".csv";
-
 
     outputToCSV(outputFilename.c_str(), NRe*NIm, h_zValsInitial, h_closest);
 
