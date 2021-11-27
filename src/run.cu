@@ -80,6 +80,19 @@ int main(int argc, char **argv)
         P = randomPolynomial(order, max, seed);
     }
 
+    else if (strcmp(test, "bigTest3") == 0)
+    {
+        // create a random order 11 polynomial
+        int max = 100;
+        int seed = 123456;
+
+        order = 50;
+
+        ReSpacing = 15;
+        ImSpacing = 5;
+        P = randomPolynomial(order, max, seed);
+    }
+
     else
     {
         return 0;
