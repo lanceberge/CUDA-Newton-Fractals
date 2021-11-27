@@ -1,7 +1,13 @@
-function create_plot(name)
+function create_plot(name, step)
     clf;
-    df = csvread("../data/"+name+"Data.csv", 1);
-    solns = csvread("../data/"+name+"Solns.csv", 1);
+    if ~exist('step', 'var')
+        df = csvread("../data/"+name+"Data.csv", 1);
+  
+    else
+        df = csvread("../data/"+name+"Data-"+step+".csv", 1);
+    end
+    
+     solns = csvread("../data/"+name+"Solns.csv", 1);
 
     color_map = [0 0.4470 0.7410; 0.8500 0.3250 0.0980; 0.4940 0.1840 0.5560; ...
         0.4660 0.6740 0.1880; 0.6350 0.0780 0.1840; ...
@@ -24,6 +30,7 @@ function create_plot(name)
 
     xlabel("Re");
     ylabel("Im");
-
-    print("../plots/"+name+"Plot.pdf", '-dpdf', '-bestfit', '-painters');
+    if ~(exist('step', 'var'))
+        print("../plots/"+name+"Plot.pdf", '-dpdf', '-bestfit');
+    end
 end
