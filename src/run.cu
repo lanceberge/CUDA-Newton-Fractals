@@ -39,12 +39,6 @@ int main(int argc, char **argv)
     Complex *zVals;
     int order;
 
-    // arrays for initial points and points following iteration
-    cudaMalloc(&zValsInitial, N*sizeof(Complex));
-    cudaMalloc(&zVals,        N*sizeof(Complex));
-
-    Complex *h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-    Complex *h_zVals        = (Complex *)malloc(N*sizeof(Complex));
 
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
@@ -106,16 +100,38 @@ int main(int argc, char **argv)
 
     Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
 
-    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, 1000, 1000);
+    N = 1000*1000;
+
+    // arrays for initial points and points following iteration
+    cudaMalloc(&zValsInitial, N*sizeof(Complex));
+    cudaMalloc(&zVals,        N*sizeof(Complex));
+
+    Complex *h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
+    Complex *h_zVals        = (Complex *)malloc(N*sizeof(Complex));
+
+    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
+    cudaFree(zValsInitial); free(h_zValsInitial);
+    cudaFree(zVals); free(h_zVals);
+
     // perform 1000 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
-
-    // output solutions to file and store them
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
 
+    N = NRe*NIm;
+
+    // arrays for initial points and points following iteration
+    cudaMalloc(&zValsInitial, N*sizeof(Complex));
+    cudaMalloc(&zVals,        N*sizeof(Complex));
+
+    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
+    h_zVals        = (Complex *)malloc(N*sizeof(Complex));
+
+    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+
+    // output solutions to file and store them
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
         // reset arrays
@@ -132,7 +148,9 @@ int main(int argc, char **argv)
     }
 
     else
+    {
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
+    }
 
 
     cudaFree(zVals)          ; free(h_zVals)       ;
