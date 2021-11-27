@@ -33,7 +33,7 @@ runSmallTest:
 	./bin/newton 100 100 smallTest
 
 runBigTest:
-	./bin/newton 1000 1000 bigTest
+	./bin/newton 500 500 bigTest
 
 runSmallTestStep:
 	./bin/newton 100 100 smallTest step

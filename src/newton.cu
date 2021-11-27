@@ -128,30 +128,3 @@ __host__ __device__ dfloat L2Distance(Complex z1, Complex z2)
 
     return sqrt((ReDiff*ReDiff) + (ImDiff*ImDiff));
 }
-
-// for N values in zVals, output their real component, imaginary component,
-// and closes solution to a csv
-void outputToCSV(const char *filename, int N, Complex *zVals, int *closest)
-{
-    FILE *fp = fopen(filename, "w");
-
-    // print our header
-    fprintf(fp, "Re, Im, Closest\n");
-
-    for (int i = 0; i < N; ++i)
-        fprintf(fp, "%f, %f, %d\n", zVals[i].Re, zVals[i].Im, closest[i]);
-
-    fclose(fp);
-}
-
-void outputSolnsToCSV(const char *filename, int nSolns, Complex *solns)
-{
-    FILE *fp = fopen(filename, "w");
-
-    fprintf(fp, "Re, Im\n");
-
-    for (int i = 0; i < nSolns; ++i)
-        fprintf(fp, "%f, %f\n", solns[i].Re, solns[i].Im);
-
-    fclose(fp);
-}
