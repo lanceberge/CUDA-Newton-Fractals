@@ -110,6 +110,7 @@ int main(int argc, char **argv)
 
     // output solutions to file and store them
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
+    outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
     if (argc >= 5 && strcmp(argv[4], "step") == 0)
     {
@@ -126,7 +127,6 @@ int main(int argc, char **argv)
         }
     }
 
-    outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
 
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
