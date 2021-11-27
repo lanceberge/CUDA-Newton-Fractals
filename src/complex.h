@@ -15,14 +15,13 @@ typedef struct Complex
 // return the product of two complex numbers
 __host__ __device__ Complex cMul(Complex z1, Complex z2);
 
-// add two complex numbers
-/* __host__ __device__ Complex cAdd(Complex z1, Complex z2); */
-
+// subtract two complex numbers
 __host__ __device__ Complex cSub(Complex z1, Complex z2);
 
 // divide two complex numbers
 __host__ __device__ Complex cDiv(Complex z1, Complex z2);
 
+// print to stdout
 void printComplex(Complex z);
 
 #endif

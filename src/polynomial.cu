@@ -71,6 +71,8 @@ Polynomial deviceP(Polynomial h_P)
     return c_P;
 }
 
+// return a random polynomial with a specified order, with coefficients
+// random between -max and max. seed is the seed for drand
 Polynomial randomPolynomial(int order, int max, int seed)
 {
     srand48(seed);
@@ -90,6 +92,7 @@ Polynomial randomPolynomial(int order, int max, int seed)
     return P;
 }
 
+// print to stdout
 void printP(Polynomial P)
 {
     dfloat *coeffs = P.coeffs;

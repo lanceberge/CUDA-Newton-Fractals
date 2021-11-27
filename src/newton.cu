@@ -29,6 +29,7 @@ __global__ void fillArrays(dfloat ReSpacing, dfloat ImSpacing, Complex *zValsIni
     }
 }
 
+// perform the iteration on each val in zVals
 __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
                                 int NRe, int NIm, int Nit)
 {
@@ -46,6 +47,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
             Complex P_z      = Pz(P, z);
             Complex P_primeZ = Pz(Pprime, z);
 
+            // perform one iteratoin
             z = cSub(z, cDiv(P_z, P_primeZ));
         }
 
