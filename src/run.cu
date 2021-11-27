@@ -115,6 +115,7 @@ int main(int argc, char **argv)
 
     // perform 1000 iterations then output solutions
     iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
+
     outputSolns(h_zVals, h_zValsInitial, &h_solns, order, test);
 
     // output solutions to file and store them
@@ -146,9 +147,7 @@ int main(int argc, char **argv)
     }
 
     else
-    {
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test);
-    }
 
 
     cudaFree(zVals)          ; free(h_zVals)       ;
