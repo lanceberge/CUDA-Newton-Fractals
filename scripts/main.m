@@ -1,3 +1,5 @@
+% if step is provided, run main with step for 100 iterations,
+% otherwise, just produce the final plot
 function main(test, step)
     if (nargin < 1)
         error("run as main <test> [step]")
