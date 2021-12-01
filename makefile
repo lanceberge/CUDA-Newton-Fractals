@@ -30,21 +30,15 @@ runAll:
 runSmallTest:
 	./bin/newton 100 100 smallTest
 	./bin/newton 100 100 smallTest step
-	./bin/newton 100 100 smallTestL1 L1
-	./bin/newton 100 100 smallTestL1 step L1
 
 runBigTest:
 	./bin/newton 500 500 bigTest
 	./bin/newton 200 200 bigTest step
-	./bin/newton 500 500 bigTestL1 L1
-	./bin/newton 200 200 bigTestL1 step L1
 
 
 runBigTest2:
 	./bin/newton 500 500 bigTest2
 	./bin/newton 200 200 bigTest2 step
-	./bin/newton 500 500 bigTest2L1 L1
-	./bin/newton 200 200 bigTest2L1 step L1
 
 runBigTest3:
 	./bin/newton 500 500 bigTest3
