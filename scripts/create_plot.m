@@ -22,7 +22,7 @@ function create_plot(name, step)
      
     pointsize = 25;
 
-    
+    % we need a different colorscheme for bigTest3
     if ~(strcmp('bigTest3', name) | strcmp('bigTest3L1', name))
         % is a vector from 1:3 for 3 solutions
         soln_vals = (1:length(solns))';
@@ -50,6 +50,7 @@ function create_plot(name, step)
     xlabel("Re");
     ylabel("Im");
    
+    % save the plot to a file if we're not stepping through
     if ~(exist('step', 'var'))
         print("../plots/"+name+"Plot.pdf", '-dpdf', '-bestfit');
     else
