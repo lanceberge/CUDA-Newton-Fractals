@@ -2,6 +2,8 @@
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
 
+*Note*: This project was my final project for CMDA 4984: SS Scientific Computing at Scale. I've been working on the project since then, but what I submitted for that project is in the `old` branch.
+
 The plots (located in [plots](plots)) are color coded based on which root of a polynomial the initial guess converged to be closest to
 
 For example:
