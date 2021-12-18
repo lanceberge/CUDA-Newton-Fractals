@@ -2,7 +2,7 @@
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
 
-*Note*: This project was my final project for CMDA 4984: SS Scientific Computing at Scale. I've been working on the project since then, but what I submitted for that project is in the `old` branch.
+***Note***: This project was my final project for CMDA 4984: SS Scientific Computing at Scale. I've been working on the project since then, but what I submitted for that project is in the `old` branch.
 
 The plots (located in [plots](plots)) are color coded based on which root of a polynomial the initial guess converged to be closest to
 
@@ -10,7 +10,7 @@ For example:
 
 ![bigTestPlot](plots/bigTestPlot.JPG)
 
-The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, Yellow values mean that the initial guesses at those points converged to be closest to the yellow root (circled with a black outline). A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
+The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, yellow points mean that the initial guesses at those points converged to be closest to the yellow root (circled with a black outline). A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
 ## Running the Kernel
 
@@ -68,4 +68,4 @@ Using L1 norm:
 
 ![bigTest3Plot](plots/bigTest3L1Plot.JPG)
 
-Amusingly, using the L1 norm to color the guesses basically just makes everything more square.
+Amusingly, using the L1 norm to color the guesses basically just makes everything in the L2 plot more square.
