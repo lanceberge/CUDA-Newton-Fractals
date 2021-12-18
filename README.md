@@ -2,13 +2,13 @@
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
 
-The plots (located in plots) are color coded based on which root of a polynomial the initial guess converged to be closest to
+The plots (located in [plots](plots)) are color coded based on which root of a polynomial the initial guess converged to be closest to
 
 For example:
 
 ![bigTestPlot](plots/bigTestPlot.JPG)
 
-The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, Yellow values mean that the initial guesses at those points converged to be closest to the yellow root (circled with a black outline). A CUDA kernel in [newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
+The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, Yellow values mean that the initial guesses at those points converged to be closest to the yellow root (circled with a black outline). A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
 ## Running the Kernel
 
