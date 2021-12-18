@@ -59,7 +59,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 // nSolns - order of the polynomial
 // after running the iteration, zVals should represent n unique values corresponding
 // to the solutions of the polynomial, this function finds those unique values
-__host__ __device__ int findSolns(Complex *solns, Complex *zVals,
+__host__ __device__ int findSolns(Polynomial P, Complex *solns, Complex *zVals,
                                    int nSolns, int nVals)
 {
     int nFound = 0;
@@ -70,6 +70,11 @@ __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
         bool alreadyFound = false;
 
         Complex curr = zVals[i];
+
+        // if this isn't a valid solution, i.e. the iteration didn't converge
+        // to a solution for that initial guess
+        if (Pz(P, curr) != 0)
+            break;
 
         // if the current value isn't already in solns, then add it to solns
         for (int j = 0; j < nFound; ++j)
