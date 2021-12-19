@@ -4,9 +4,7 @@ newton:
 
 test:
 	make setup
-	nvcc src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -dc
-	nvcc *.o -o bin/test
-	rm *.o
+	nvcc src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -o bin/test -rdc=true
 	./bin/test
 
 setup:
