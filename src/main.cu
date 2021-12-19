@@ -46,7 +46,7 @@ void outputSolns(Polynomial P, Complex *h_zVals, Complex **h_solns, int nSolns, 
 // find the solutions each val in h_zVals is closest to, then output the index of that solution,
 // along with the corresponding initial point to a CSV
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename, int norm, int step)
+                int nSolns, std::string filename, int norm, int step=-1)
 {
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
     NRe = atoi(argv[1]);
     NIm = atoi(argv[2]);
 
-    N = NRe*NIm;
+    int N = NRe*NIm;
 
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
@@ -192,13 +192,19 @@ int main(int argc, char **argv)
     cudaMalloc(&zValsInitial, N*sizeof(Complex));
     cudaMalloc(&zVals,        N*sizeof(Complex));
 
-    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-    h_zVals        = (Complex *)malloc(N*sizeof(Complex));
+    Complex *h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
+    Complex *h_zVals        = (Complex *)malloc(N*sizeof(Complex));
 
     fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
-    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+
+    // perform 500 steps of the iteration and copy result back to host
+    iterate(c_P, c_Pprime, 500, zVals, h_zVals);
+    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+
+    // find the solutions and output to CSV
+    outputSolns(P, h_zVals, &h_solns, order, N, test);
 
     int norm;
 
@@ -222,13 +228,10 @@ int main(int argc, char **argv)
 
     else
     {
-        //otherwise, perform 500 iterations then output
-        iterate(c_P, c_Pprime, 500, zVals, h_zVals);
+        // otherwise just do one output
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, norm);
     }
 
-    // find the solutions and output to CSV
-    outputSolns(P, h_zVals, &h_solns, order, N, test);
 
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
