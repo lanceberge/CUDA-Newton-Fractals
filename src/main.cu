@@ -5,12 +5,87 @@
 static int NRe;
 static int NIm;
 
-void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals);
+// perform Nits iterations and copy result back to host
+void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals)
+{
+    dim3 B(16, 16, 1);
+    dim3 G((NRe + 16 - 1)/16, (NIm + 16 - 1)/16);
 
-void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename);
+    // then perform the newton iteration and copy result back to host
+    newtonIterate <<< G, B >>> (zVals, c_P, c_Pprime, NRe, NIm, Nits);
 
+    // copy result to host
+    cudaMemcpy(h_zVals, zVals, NRe*NIm*sizeof(Complex), cudaMemcpyDeviceToHost);
+}
+
+// find the solutions given h_zVals and output to CSV
+void outputSolns(Polynomial P, Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename)
+{
+    // total number of points
+    // find the solutions to this polynomial - the unique points in zVals
+    *h_solns = (Complex *)malloc(nSolns * sizeof(Complex));
+    nSolns = findSolns(P, *h_solns, h_zVals, nSolns, N);
+
+    std::string solnFilename = "data/"+filename+"Solns.csv";
+
+    FILE *fp = fopen(solnFilename.c_str(), "w");
+
+    // print our header
+    fprintf(fp, "Re, Im\n");
+
+    Complex *solns = *h_solns;
+
+    for (int i = 0; i < nSolns; ++i)
+    {
+        fprintf(fp, "%f, %f\n", solns[i].Re, solns[i].Im);
+    }
+
+    fclose(fp);
+}
+
+// find the solutions each val in h_zVals is closest to, then output the index of that solution,
+// along with the corresponding initial point to a CSV
 void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename, int norm, int step=-1);
+                int nSolns, std::string filename, int norm, int step=-1)
+{
+    dim3 B(16, 16, 1);
+    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+
+    int *closest;
+    cudaMalloc(&closest, NRe*NIm*sizeof(int));
+
+    Complex *solns;
+    cudaMalloc(&solns, nSolns*sizeof(Complex));
+    cudaMemcpy(solns, h_solns, nSolns*sizeof(Complex), cudaMemcpyHostToDevice);
+
+    findClosestSoln <<< G, B >>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
+
+    // fill *closest with an integer corresponding to the solution its closest to
+    // i.e. 0 for if this point is closest to solns[0]
+    int *h_closest = (int *)malloc(NRe*NIm * sizeof(int));
+
+    // copy results back to host
+    cudaMemcpy(h_closest, closest, NRe*NIm*sizeof(int), cudaMemcpyDeviceToHost);
+
+    // output data and solutions to CSVs
+    std::string outputFilename;
+
+    if (step == -1)
+        outputFilename = "data/"+filename+"Data.csv";
+
+    else
+        outputFilename = "data/"+filename+"Data-"+std::to_string(step)+".csv";
+
+    FILE *fp = fopen(outputFilename.c_str(), "w");
+
+    for (int i = 0; i < NRe*NIm; ++i)
+        fprintf(fp, "%f, %f, %d\n", h_zValsInitial[i].Re, h_zValsInitial[i].Im, h_closest[i]);
+
+    fclose(fp);
+
+    cudaFree(closest); free(h_closest);
+    cudaFree(solns);
+}
 
 int main(int argc, char **argv)
 {
@@ -94,9 +169,7 @@ int main(int argc, char **argv)
     }
 
     else
-    {
         return 0;
-    }
 
     // P' - derivative of P
     Polynomial Pprime = derivative(P);
@@ -107,9 +180,13 @@ int main(int argc, char **argv)
 
     Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
 
-    NRe = 1000;
-    NIm = 1000;
+    NRe = atoi(argv[1]);
+    NIm = atoi(argv[2]);
+
     int N = NRe*NIm;
+
+    dim3 B(16, 16, 1);
+    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
 
     // arrays for initial points and points following iteration
     cudaMalloc(&zValsInitial, N*sizeof(Complex));
@@ -118,41 +195,16 @@ int main(int argc, char **argv)
     Complex *h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
     Complex *h_zVals        = (Complex *)malloc(N*sizeof(Complex));
 
-    dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-
     fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
-    // perform 1000 iterations then output solutions
-    iterate(c_P, c_Pprime, 1000, zVals, h_zVals);
-
-    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
-
-    outputSolns(h_zVals, &h_solns, order, N, test);
-
-    NRe = atoi(argv[1]);
-    NIm = atoi(argv[2]);
-
-    N = NRe*NIm;
-
-    dim3 B2(16, 16, 1);
-    dim3 G2((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-
-    // reset arrays
-    cudaFree(zValsInitial); free(h_zValsInitial);
-    cudaFree(zVals)       ; free(h_zVals)       ;
-
-    // arrays for initial points and points following iteration
-    cudaMalloc(&zValsInitial, N*sizeof(Complex));
-    cudaMalloc(&zVals,        N*sizeof(Complex));
-
-    h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-    h_zVals        = (Complex *)malloc(N*sizeof(Complex));
-
-    fillArrays <<< G2, B2 >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-
-    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+
+    // perform 500 steps of the iteration and copy result back to host
+    iterate(c_P, c_Pprime, 500, zVals, h_zVals);
+    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+
+    // find the solutions and output to CSV
+    outputSolns(P, h_zVals, &h_solns, order, N, test);
 
     int norm;
 
@@ -164,8 +216,7 @@ int main(int argc, char **argv)
     else
         norm = 2;
 
-    if (argc > 4 && strcmp(argv[4], "step") == 0)
-    {
+    if (argc > 4 && strcmp(argv[4], "step") == 0) {
 
         for (int i = 0; i < 100; ++i)
         {
@@ -177,10 +228,10 @@ int main(int argc, char **argv)
 
     else
     {
-        //otherwise, perform 100 iterations then output
-        iterate(c_P, c_Pprime, 100, zVals, h_zVals);
+        // otherwise just do one output
         outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, norm);
     }
+
 
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
@@ -189,86 +240,4 @@ int main(int argc, char **argv)
 
     free(h_solns);
     return 0;
-}
-
-// perform Nits iterations and copy result back to host
-void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals)
-{
-    dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NIm + 16 - 1)/16);
-
-    // then perform the newton iteration and copy result back to host
-    newtonIterate <<< G, B >>> (zVals, c_P, c_Pprime, NRe, NIm, Nits);
-
-    // copy result to host
-    cudaMemcpy(h_zVals, zVals, NRe*NIm*sizeof(Complex), cudaMemcpyDeviceToHost);
-}
-
-// find the solutions given h_zVals and output to CSV
-void outputSolns(Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename)
-{
-    // total number of points
-    // find the solutions to this polynomial - the unique points in zVals
-    *h_solns = (Complex *)malloc(nSolns * sizeof(Complex));
-    nSolns = findSolns(*h_solns, h_zVals, nSolns, N);
-
-    std::string solnFilename = "data/"+filename+"Solns.csv";
-
-    FILE *fp = fopen(solnFilename.c_str(), "w");
-
-    // print our header
-    fprintf(fp, "Re, Im\n");
-
-    Complex *solns = *h_solns;
-
-    for (int i = 0; i < nSolns; ++i)
-    {
-        fprintf(fp, "%f, %f\n", solns[i].Re, solns[i].Im);
-    }
-
-    fclose(fp);
-}
-
-// find the solutions each val in h_zVals is closest to, then output the index of that solution,
-// along with the corresponding initial point to a CSV
-void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename, int norm, int step)
-{
-    dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-
-    int *closest;
-    cudaMalloc(&closest, NRe*NIm*sizeof(int));
-
-    Complex *solns;
-    cudaMalloc(&solns, nSolns*sizeof(Complex));
-    cudaMemcpy(solns, h_solns, nSolns*sizeof(Complex), cudaMemcpyHostToDevice);
-
-    findClosestSoln <<< G, B >>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
-
-    // fill *closest with an integer corresponding to the solution its closest to
-    // i.e. 0 for if this point is closest to solns[0]
-    int *h_closest = (int *)malloc(NRe*NIm * sizeof(int));
-
-    // copy results back to host
-    cudaMemcpy(h_closest, closest, NRe*NIm*sizeof(int), cudaMemcpyDeviceToHost);
-
-    // output data and solutions to CSVs
-    std::string outputFilename;
-
-    if (step == -1)
-        outputFilename = "data/"+filename+"Data.csv";
-
-    else
-        outputFilename = "data/"+filename+"Data-"+std::to_string(step)+".csv";
-
-    FILE *fp = fopen(outputFilename.c_str(), "w");
-
-    for (int i = 0; i < NRe*NIm; ++i)
-        fprintf(fp, "%f, %f, %d\n", h_zValsInitial[i].Re, h_zValsInitial[i].Im, h_closest[i]);
-
-    fclose(fp);
-
-    cudaFree(closest); free(h_closest);
-    cudaFree(solns);
 }

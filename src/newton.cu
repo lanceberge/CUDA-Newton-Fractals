@@ -47,7 +47,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
             Complex P_z      = Pz(P, z);
             Complex P_primeZ = Pz(Pprime, z);
 
-            // perform one iteratoin
+            // perform one iteration
             z = cSub(z, cDiv(P_z, P_primeZ));
         }
 
@@ -59,7 +59,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 // nSolns - order of the polynomial
 // after running the iteration, zVals should represent n unique values corresponding
 // to the solutions of the polynomial, this function finds those unique values
-__host__ __device__ int findSolns(Complex *solns, Complex *zVals,
+__host__ __device__ int findSolns(Polynomial P, Complex *solns, Complex *zVals,
                                    int nSolns, int nVals)
 {
     int nFound = 0;
@@ -70,6 +70,14 @@ __host__ __device__ int findSolns(Complex *solns, Complex *zVals,
         bool alreadyFound = false;
 
         Complex curr = zVals[i];
+
+        // if this isn't a valid solution, i.e. the iteration didn't converge
+        // to a solution for that initial guess
+        Complex P_z = Pz(P, curr);
+
+        // if this value isn't a root; if P(z)'s Re or Im value's aren't 0
+        if (!(fabs(P_z.Re) < 1e-10 && fabs(P_z.Im) < 1e-10))
+            continue;
 
         // if the current value isn't already in solns, then add it to solns
         for (int j = 0; j < nFound; ++j)
