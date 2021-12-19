@@ -12,11 +12,6 @@ setup:
 	mkdir bin; \
 	fi
 
-debug:
-	nvcc -g -G src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -dc
-	nvcc -g -G *.o -o bin/test
-	rm *.o
-
 runAll:
 	make runSmallTest
 	make runBigTest
