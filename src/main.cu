@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string>
 
+// Convert values from 0-11 into RGB triplets in ptr
 void setRGB(png_byte *ptr, int val)
 {
     // arrays for red, green, and blue percentages
@@ -16,30 +17,28 @@ void setRGB(png_byte *ptr, int val)
     ptr[2] = (int)(b[val]*256);
 }
 
-void writeImage(const char *filename, int width, int height, int *buffer, const char *title)
+// Output the data to png
+// Essentially taken from: http://www.labbookpages.co.uk/software/imgProc/files/libPNG/makePNG.c
+void writeImage(const char *filename, int width, int height, int *buffer)
 {
     FILE *fp = fopen(filename, "wb");
 
+    // initialize some pointers
     png_structp png_ptr = NULL;
-    png_infop info_ptr = NULL;
-    png_bytep row = NULL;
+    png_infop info_ptr  = NULL;
+    png_bytep row       = NULL;
 
+    // set up png and info ptr
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-
     info_ptr = png_create_info_struct(png_ptr);
+
     setjmp(png_jmpbuf(png_ptr));
 
     png_init_io(png_ptr, fp);
 
-    png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
-                 PNG_FILTER_TYPE_BASE);
-
-    // set title
-    png_text title_text;
-    title_text.compression = PNG_TEXT_COMPRESSION_NONE;
-    title_text.key  = (char*)"Title";
-    title_text.text = (char*)title;
-    png_set_text(png_ptr, info_ptr, &title_text, 1);
+    // set some metadata
+    png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB,
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
     png_write_info(png_ptr, info_ptr);
 
@@ -47,7 +46,6 @@ void writeImage(const char *filename, int width, int height, int *buffer, const 
     row = (png_bytep)malloc(3 * width * sizeof(png_byte));
 
     int x, y;
-
     for (y = 0; y < height; ++y) {
         for (x = 0; x < height; ++x) {
             setRGB(&(row[x * 3]), buffer[y * width + x]);
@@ -63,6 +61,7 @@ void writeImage(const char *filename, int width, int height, int *buffer, const 
     free(row);
 }
 
+// perform the iteration and output to png
 int main(int argc, char **argv)
 {
     if (argc < 4) {
@@ -76,14 +75,17 @@ int main(int argc, char **argv)
 
     char *test = argv[3];
 
-    Polynomial P;
-
+    // device array pointers
+    int     *closest;
+    Complex *solns;
     Complex *zValsInitial;
     Complex *zVals;
-    int order;
 
+    // will be initialized below based on which test we use
     dfloat ReSpacing;
     dfloat ImSpacing;
+    int order;
+    Polynomial P;
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
@@ -134,27 +136,27 @@ int main(int argc, char **argv)
     Polynomial Pprime = derivative(P);
 
     // device versions for newtonIterate
-    Polynomial c_P = deviceP(P);
+    Polynomial c_P      = deviceP(P);
     Polynomial c_Pprime = deviceP(Pprime);
-
-    Complex *h_solns = (Complex *)malloc(order * sizeof(Complex));
 
     int NRe = atoi(argv[1]);
     int NIm = atoi(argv[2]);
-    int N = NRe * NIm;
+    int N   = NRe * NIm;
 
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1) / 16, (NRe + 16 - 1) / 16);
 
     // arrays for initial points and points following iteration
     cudaMalloc(&zValsInitial, N * sizeof(Complex));
-    cudaMalloc(&zVals, N * sizeof(Complex));
+    cudaMalloc(&zVals       , N * sizeof(Complex));
 
     Complex *h_zValsInitial = (Complex *)malloc(N * sizeof(Complex));
-    Complex *h_zVals = (Complex *)malloc(N * sizeof(Complex));
+    Complex *h_zVals        = (Complex *)malloc(N * sizeof(Complex));
 
+    // initialize arrays - evenly spaced over complex plane
     fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
+    // copy to host
     cudaMemcpy(h_zValsInitial, zValsInitial, N * sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // perform 500 steps of the iteration and copy result back to host
@@ -164,20 +166,22 @@ int main(int argc, char **argv)
     cudaMemcpy(h_zVals, zVals, N * sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // find the solutions - unique values in zVals
-    h_solns = (Complex *)malloc(order * sizeof(Complex));
+    Complex *h_solns = (Complex *)malloc(order * sizeof(Complex));
+
     int nSolns = findSolns(P, h_solns, h_zVals, order, N);
 
+    // TODO
     int norm = (argc > 4 && strcmp(argv[4], "L1") == 0 ||
                 argc > 5 && strcmp(argv[5], "L1") == 0) ? 1 : 2;
 
     // find closest solutions to each point in zVals
-    int *closest;
     cudaMalloc(&closest, N * sizeof(int));
 
-    Complex *solns;
+    // copy h_solns to device for use in findClosestSoln
     cudaMalloc(&solns, nSolns * sizeof(Complex));
     cudaMemcpy(solns, h_solns, nSolns * sizeof(Complex), cudaMemcpyHostToDevice);
 
+    // find the closest solution to each value in zVals and store it in closest
     findClosestSoln <<<G, B>>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
 
     // fill *closest with an integer corresponding to the solution its closest to
@@ -187,8 +191,10 @@ int main(int argc, char **argv)
     // copy results back to host
     cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
 
-    writeImage(("plots/"+std::string(test)+".png").c_str(), NRe, NIm, h_closest, "closest");
+    // output image
+    writeImage(("plots/"+std::string(test)+".png").c_str(), NRe, NIm, h_closest);
 
+    // free heap memory
     cudaFree(closest)        ; free(h_closest)     ;
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
