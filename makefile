@@ -1,6 +1,6 @@
 newton:
 	make setup
-	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu -o bin/newton -rdc=true
+	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu -O3 -o bin/newton -rdc=true
 
 test:
 	make setup
