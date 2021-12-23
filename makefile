@@ -19,20 +19,20 @@ runAll:
 	make runBigTest3
 
 runSmallTest:
-	./bin/newton 100 100 smallTest
 	./bin/newton 100 100 smallTest step
+	./bin/newton 100 100 smallTest
 
 runBigTest:
-	./bin/newton 500 500 bigTest
 	./bin/newton 200 200 bigTest step
+	./bin/newton 500 500 bigTest
 
 
 runBigTest2:
-	./bin/newton 500 500 bigTest2
 	./bin/newton 200 200 bigTest2 step
+	./bin/newton 500 500 bigTest2
 
 runBigTest3:
-	./bin/newton 500 500 bigTest3
 	./bin/newton 200 200 bigTest3 step
-	./bin/newton 500 500 bigTest3L1 L1
+	./bin/newton 500 500 bigTest3
 	./bin/newton 200 200 bigTest3L1 step L1
+	./bin/newton 500 500 bigTest3L1 L1
