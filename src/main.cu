@@ -148,9 +148,7 @@ int main(int argc, char **argv)
             // what to set it to
             char *val = strtok(NULL, "=");
 
-            if (val != NULL)
-            {
-
+            if (val != NULL) {
                 if (strcmp(token, "NRe") == 0)
                     // if nothing is specified, set to 3, else to the specified value
                     NRe = atoi(val);
@@ -163,7 +161,6 @@ int main(int argc, char **argv)
 
                 else if (strcmp(token, "ImSpacing") == 0)
                     ImSpacing = atoi(val);
-
             }
         }
 
@@ -231,6 +228,7 @@ int main(int argc, char **argv)
         // reset zVals
         fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
+        // perform one iteration and output an image for each
         for (int i = 0; i < 50; ++i) {
             // perform one iteration, copy back to host, then output image
             cudaMemcpy(h_zVals, zVals, N * sizeof(Complex), cudaMemcpyDeviceToHost);
@@ -253,18 +251,20 @@ int main(int argc, char **argv)
         }
     }
 
-    // find the closest solution to each value in zVals and store it in closest
-    findClosestSoln<<<G, B>>>(closest, zVals, NRe, NIm, solns, nSolns, norm);
+    else {
+        // find the closest solution to each value in zVals and store it in closest
+        findClosestSoln<<<G, B>>>(closest, zVals, NRe, NIm, solns, nSolns, norm);
 
-    // fill *closest with an integer corresponding to the solution its closest to
-    // i.e. 0 for if this point is closest to solns[0]
-    int *h_closest = (int *)malloc(N * sizeof(int));
+        // fill *closest with an integer corresponding to the solution its closest to
+        // i.e. 0 for if this point is closest to solns[0]
+        int *h_closest = (int *)malloc(N * sizeof(int));
 
-    // copy results back to host
-    cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
+        // copy results back to host
+        cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // output image
-    writeImage(("plots/"+std::string(testName)+".png").c_str(), NRe, NIm, h_closest);
+        // output image
+        writeImage(("plots/"+std::string(testName)+".png").c_str(), NRe, NIm, h_closest);
+    }
 
     // free heap memory
     cudaFree(closest)        ; free(h_closest)     ;
