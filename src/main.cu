@@ -1,96 +1,71 @@
 #include "newton.h"
-#include <string>
+#include <png.h>
 #include <stdlib.h>
+#include <string>
 
-static int NRe;
-static int NIm;
-
-// perform Nits iterations and copy result back to host
-void iterate(Polynomial c_P, Polynomial c_Pprime, int Nits, Complex *zVals, Complex *h_zVals)
+void setRGB(png_byte *ptr, int val)
 {
-    dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NIm + 16 - 1)/16);
+    // arrays for red, green, and blue percentages
+    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 1, .69 , 1   , 0  , 0};
+    float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0, 0.61, 0.75, 0.6, 0.5};
+    float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0, 0.85, 0.8 , 0.3, 0.5};
 
-    // then perform the newton iteration and copy result back to host
-    newtonIterate <<< G, B >>> (zVals, c_P, c_Pprime, NRe, NIm, Nits);
-
-    // copy result to host
-    cudaMemcpy(h_zVals, zVals, NRe*NIm*sizeof(Complex), cudaMemcpyDeviceToHost);
+    // convert into RGB triplets by multiplying each by 256
+    ptr[0] = (int)(r[val]*256);
+    ptr[1] = (int)(g[val]*256);
+    ptr[2] = (int)(b[val]*256);
 }
 
-// find the solutions given h_zVals and output to CSV
-void outputSolns(Polynomial P, Complex *h_zVals, Complex **h_solns, int nSolns, int N, std::string filename)
+void writeImage(const char *filename, int width, int height, int *buffer, const char *title)
 {
-    // total number of points
-    // find the solutions to this polynomial - the unique points in zVals
-    *h_solns = (Complex *)malloc(nSolns * sizeof(Complex));
-    nSolns = findSolns(P, *h_solns, h_zVals, nSolns, N);
+    FILE *fp = fopen(filename, "wb");
 
-    std::string solnFilename = "data/"+filename+"Solns.csv";
+    png_structp png_ptr = NULL;
+    png_infop info_ptr = NULL;
+    png_bytep row = NULL;
 
-    FILE *fp = fopen(solnFilename.c_str(), "w");
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-    // print our header
-    fprintf(fp, "Re, Im\n");
+    info_ptr = png_create_info_struct(png_ptr);
+    setjmp(png_jmpbuf(png_ptr));
 
-    Complex *solns = *h_solns;
+    png_init_io(png_ptr, fp);
 
-    for (int i = 0; i < nSolns; ++i)
-    {
-        fprintf(fp, "%f, %f\n", solns[i].Re, solns[i].Im);
+    png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+                 PNG_FILTER_TYPE_BASE);
+
+    // set title
+    png_text title_text;
+    title_text.compression = PNG_TEXT_COMPRESSION_NONE;
+    title_text.key  = (char*)"Title";
+    title_text.text = (char*)title;
+    png_set_text(png_ptr, info_ptr, &title_text, 1);
+
+    png_write_info(png_ptr, info_ptr);
+
+    // write to png row by row
+    row = (png_bytep)malloc(3 * width * sizeof(png_byte));
+
+    int x, y;
+
+    for (y = 0; y < height; ++y) {
+        for (x = 0; x < height; ++x) {
+            setRGB(&(row[x * 3]), buffer[y * width + x]);
+        }
+        png_write_row(png_ptr, row);
     }
 
-    fclose(fp);
-}
-
-// find the solutions each val in h_zVals is closest to, then output the index of that solution,
-// along with the corresponding initial point to a CSV
-void outputVals(Complex *zVals, Complex *h_zVals, Complex *h_solns, Complex *h_zValsInitial,
-                int nSolns, std::string filename, int norm, int step=-1)
-{
-    dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
-
-    int *closest;
-    cudaMalloc(&closest, NRe*NIm*sizeof(int));
-
-    Complex *solns;
-    cudaMalloc(&solns, nSolns*sizeof(Complex));
-    cudaMemcpy(solns, h_solns, nSolns*sizeof(Complex), cudaMemcpyHostToDevice);
-
-    findClosestSoln <<< G, B >>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
-
-    // fill *closest with an integer corresponding to the solution its closest to
-    // i.e. 0 for if this point is closest to solns[0]
-    int *h_closest = (int *)malloc(NRe*NIm * sizeof(int));
-
-    // copy results back to host
-    cudaMemcpy(h_closest, closest, NRe*NIm*sizeof(int), cudaMemcpyDeviceToHost);
-
-    // output data and solutions to CSVs
-    std::string outputFilename;
-
-    if (step == -1)
-        outputFilename = "data/"+filename+"Data.csv";
-
-    else
-        outputFilename = "data/"+filename+"Data-"+std::to_string(step)+".csv";
-
-    FILE *fp = fopen(outputFilename.c_str(), "w");
-
-    for (int i = 0; i < NRe*NIm; ++i)
-        fprintf(fp, "%f, %f, %d\n", h_zValsInitial[i].Re, h_zValsInitial[i].Im, h_closest[i]);
+    png_write_end(png_ptr, NULL);
 
     fclose(fp);
-
-    cudaFree(closest); free(h_closest);
-    cudaFree(solns);
+    png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+    free(row);
 }
 
 int main(int argc, char **argv)
 {
-    if (argc < 4)
-    {
+    if (argc < 4) {
         printf("Usage: ./newton <NRe> <NIm> <Test> [step]\n");
         printf("NRe  - Number of real points to run iteration on\n");
         printf("NIm  - number of imaginary points to run iteration on\n");
@@ -112,12 +87,11 @@ int main(int argc, char **argv)
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
-    if (strcmp(test, "smallTest") == 0 || strcmp(test, "smallTestL1") == 0)
-    {
+    if (strcmp(test, "smallTest") == 0 || strcmp(test, "smallTestL1") == 0) {
         order = 3;
 
         // create a polynomial
-        dfloat *coeffs = new dfloat[4] {-4, 6, 2, 0};
+        dfloat *coeffs = new dfloat[4]{-4, 6, 2, 0};
         P.coeffs = coeffs;
         P.order = order;
 
@@ -128,8 +102,7 @@ int main(int argc, char **argv)
     }
 
     // random polynomial of order 7
-    else if (strcmp(test, "bigTest") == 0 || strcmp(test, "bigTestL1") == 0)
-    {
+    else if (strcmp(test, "bigTest") == 0 || strcmp(test, "bigTestL1") == 0) {
         int max = 10;
         int seed = 123456;
         order = 7;
@@ -142,8 +115,7 @@ int main(int argc, char **argv)
     }
 
     // order 12
-    else if (strcmp(test, "bigTest2") == 0 || strcmp(test, "bigTest2L1") == 0)
-    {
+    else if (strcmp(test, "bigTest2") == 0 || strcmp(test, "bigTest2L1") == 0) {
         // create a random order 11 polynomial
         int max = 50;
         int seed = 654321;
@@ -155,19 +127,6 @@ int main(int argc, char **argv)
         P = randomPolynomial(order, max, seed);
     }
 
-    else if (strcmp(test, "bigTest3") == 0 || strcmp(test, "bigTest3L1") == 0)
-    {
-        // create a random order 11 polynomial
-        int max = 100;
-        int seed = 123456;
-
-        order = 50;
-
-        ReSpacing = 50;
-        ImSpacing = 25;
-        P = randomPolynomial(order, max, seed);
-    }
-
     else
         return 0;
 
@@ -175,69 +134,66 @@ int main(int argc, char **argv)
     Polynomial Pprime = derivative(P);
 
     // device versions for newtonIterate
-    Polynomial c_P      = deviceP(P);
+    Polynomial c_P = deviceP(P);
     Polynomial c_Pprime = deviceP(Pprime);
 
-    Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
+    Complex *h_solns = (Complex *)malloc(order * sizeof(Complex));
 
-    NRe = atoi(argv[1]);
-    NIm = atoi(argv[2]);
-
-    int N = NRe*NIm;
+    int NRe = atoi(argv[1]);
+    int NIm = atoi(argv[2]);
+    int N = NRe * NIm;
 
     dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1)/16, (NRe + 16 - 1)/16);
+    dim3 G((NRe + 16 - 1) / 16, (NRe + 16 - 1) / 16);
 
     // arrays for initial points and points following iteration
-    cudaMalloc(&zValsInitial, N*sizeof(Complex));
-    cudaMalloc(&zVals,        N*sizeof(Complex));
+    cudaMalloc(&zValsInitial, N * sizeof(Complex));
+    cudaMalloc(&zVals, N * sizeof(Complex));
 
-    Complex *h_zValsInitial = (Complex *)malloc(N*sizeof(Complex));
-    Complex *h_zVals        = (Complex *)malloc(N*sizeof(Complex));
+    Complex *h_zValsInitial = (Complex *)malloc(N * sizeof(Complex));
+    Complex *h_zVals = (Complex *)malloc(N * sizeof(Complex));
 
-    fillArrays <<< G, B >>> (ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+    fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
-    cudaMemcpy(h_zValsInitial, zValsInitial, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_zValsInitial, zValsInitial, N * sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // perform 500 steps of the iteration and copy result back to host
-    iterate(c_P, c_Pprime, 500, zVals, h_zVals);
-    cudaMemcpy(h_zVals, zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
+    newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 500);
 
-    // find the solutions and output to CSV
-    outputSolns(P, h_zVals, &h_solns, order, N, test);
+    // copy result to host
+    cudaMemcpy(h_zVals, zVals, N * sizeof(Complex), cudaMemcpyDeviceToHost);
 
-    int norm;
+    // find the solutions - unique values in zVals
+    h_solns = (Complex *)malloc(order * sizeof(Complex));
+    int nSolns = findSolns(P, h_solns, h_zVals, order, N);
 
-    // output solutions to file and store them
-    if (argc > 4 && strcmp(argv[4], "L1") == 0 ||
-        argc > 5 && strcmp(argv[5], "L1") == 0)
-        norm = 1;
+    int norm = (argc > 4 && strcmp(argv[4], "L1") == 0 ||
+                argc > 5 && strcmp(argv[5], "L1") == 0) ? 1 : 2;
 
-    else
-        norm = 2;
+    // find closest solutions to each point in zVals
+    int *closest;
+    cudaMalloc(&closest, N * sizeof(int));
 
-    if (argc > 4 && strcmp(argv[4], "step") == 0) {
+    Complex *solns;
+    cudaMalloc(&solns, nSolns * sizeof(Complex));
+    cudaMemcpy(solns, h_solns, nSolns * sizeof(Complex), cudaMemcpyHostToDevice);
 
-        for (int i = 0; i < 100; ++i)
-        {
-            // output then perform 1 iteration
-            outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, norm, i);
-            iterate(c_P, c_Pprime, 1, zVals, h_zVals);
-        }
-    }
+    findClosestSoln <<<G, B>>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
 
-    else
-    {
-        // otherwise just do one output
-        outputVals(zVals, h_zVals, h_solns, h_zValsInitial, order, test, norm);
-    }
+    // fill *closest with an integer corresponding to the solution its closest to
+    // i.e. 0 for if this point is closest to solns[0]
+    int *h_closest = (int *)malloc(N * sizeof(int));
 
+    // copy results back to host
+    cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
 
+    writeImage(("plots/"+std::string(test)+".png").c_str(), NRe, NIm, h_closest, "closest");
+
+    cudaFree(closest)        ; free(h_closest)     ;
     cudaFree(zVals)          ; free(h_zVals)       ;
     cudaFree(zValsInitial)   ; free(h_zValsInitial);
     cudaFree(c_P.coeffs)     ; free(P.coeffs)      ;
     cudaFree(c_Pprime.coeffs);
-
-    free(h_solns);
+    cudaFree(solns)          ; free(h_solns)       ;
     return 0;
 }

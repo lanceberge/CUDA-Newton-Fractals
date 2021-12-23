@@ -48,7 +48,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
             Complex P_primeZ = Pz(Pprime, z);
 
             // perform one iteration
-            z =z - P_z/P_primeZ;
+            z = z - P_z/P_primeZ;
         }
 
         zVals[x + NRe*y] = z;
