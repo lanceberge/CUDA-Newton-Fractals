@@ -28,3 +28,9 @@ runBigTest:
 
 runBigTest2:
 	./bin/newton 500 500 bigTest2
+
+name = bigTest
+
+movie:
+	ffmpeg -y -start_number 0 -r 24 -i plots/$(name)Step-%d.png -b:v 8192k -c:v mpeg4 plots/$(name).mp4
+	rm plots/*Step*
