@@ -25,8 +25,8 @@ __device__ Complex Complex::operator/(Complex z2)
     dfloat oos = 1.0 / s;
     dfloat ars = this->Re * oos;
     dfloat ais = this->Im * oos;
-    dfloat brs = z2.Re * oos;
-    dfloat bis = z2.Im * oos;
+    dfloat brs = z2.Re    * oos;
+    dfloat bis = z2.Im    * oos;
     s = (brs * brs) + (bis * bis);
     oos = 1.0 / s;
 
