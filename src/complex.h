@@ -16,10 +16,10 @@ typedef struct Complex
 __host__ __device__ Complex cMul(Complex z1, Complex z2);
 
 // subtract two complex numbers
-__host__ __device__ Complex cSub(Complex z1, Complex z2);
+__device__ Complex cSub(Complex z1, Complex z2);
 
 // divide two complex numbers
-__host__ __device__ Complex cDiv(Complex z1, Complex z2);
+__device__ Complex cDiv(Complex z1, Complex z2);
 
 // print to stdout
 void printComplex(Complex z);
