@@ -43,7 +43,7 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z)
         ImSum += coeff*zPow.Im;
 
         // update zPow to zPow*zPow
-        zPow = cMul(zPow, z);
+        zPow = zPow*z;
     }
 
     Complex P_z = {ReSum, ImSum};
