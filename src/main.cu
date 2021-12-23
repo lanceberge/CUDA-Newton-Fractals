@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
         order = 12;
 
-        ReSpacing = 15;
+        ReSpacing = 5;
         ImSpacing = 5;
         P = randomPolynomial(order, max, seed);
     }
