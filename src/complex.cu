@@ -1,7 +1,7 @@
 #include "complex.h"
 
 // return the product of two complex numbers
-__host__ __device__ Complex cMul(Complex z1, Complex z2)
+__device__ Complex cMul(Complex z1, Complex z2)
 {
     dfloat Re = z1.Re*z2.Re - z1.Im*z2.Im;
     dfloat Im = z1.Re*z2.Im + z1.Im*z2.Re;
@@ -11,7 +11,7 @@ __host__ __device__ Complex cMul(Complex z1, Complex z2)
 }
 
 // subtract two complex numbers
-__host__ __device__ Complex cSub(Complex z1, Complex z2)
+__device__ Complex cSub(Complex z1, Complex z2)
 {
     Complex z = {z1.Re - z2.Re, z1.Im - z2.Im};
     return z;
@@ -19,7 +19,7 @@ __host__ __device__ Complex cSub(Complex z1, Complex z2)
 
 // divide two complex numbers - implementation from
 // https://pixel.ecn.purdue.edu:8443/purpl/WSJ/projects/DirectionalStippling/include/cuComplex.h
-__host__ __device__ Complex cDiv(Complex z1, Complex z2)
+__device__ Complex cDiv(Complex z1, Complex z2)
 {
     dfloat s = (fabs(z2.Re)) + (fabs(z2.Im));
     dfloat oos = 1.0 / s;

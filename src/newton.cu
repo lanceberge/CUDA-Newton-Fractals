@@ -59,7 +59,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 // nSolns - order of the polynomial
 // after running the iteration, zVals should represent n unique values corresponding
 // to the solutions of the polynomial, this function finds those unique values
-__host__ __device__ int findSolns(Polynomial P, Complex *solns, Complex *zVals,
+int findSolns(Polynomial P, Complex *solns, Complex *zVals,
                                    int nSolns, int nVals)
 {
     int nFound = 0;
@@ -145,7 +145,7 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
 }
 
 // compute the L2 distance between two points
-__host__ __device__ dfloat L2Distance(Complex z1, Complex z2)
+__device__ dfloat L2Distance(Complex z1, Complex z2)
 {
     dfloat ReDiff = z1.Re - z2.Re;
     dfloat ImDiff = z1.Im - z2.Im;
@@ -154,7 +154,7 @@ __host__ __device__ dfloat L2Distance(Complex z1, Complex z2)
 }
 
 // compute the L1 distance between two points
-__host__ __device__ dfloat L1Distance(Complex z1, Complex z2)
+__device__ dfloat L1Distance(Complex z1, Complex z2)
 {
     dfloat ReDiff = z1.Re - z2.Re;
     dfloat ImDiff = z1.Im - z2.Im;
