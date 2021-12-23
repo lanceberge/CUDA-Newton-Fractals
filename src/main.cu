@@ -29,7 +29,7 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     png_bytep row       = NULL;
 
     // set up png and info ptr
-    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_ptr  = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     info_ptr = png_create_info_struct(png_ptr);
 
     setjmp(png_jmpbuf(png_ptr));
@@ -64,16 +64,19 @@ void writeImage(const char *filename, int width, int height, int *buffer)
 // perform the iteration and output to png
 int main(int argc, char **argv)
 {
-    if (argc < 4) {
-        printf("Usage: ./newton <NRe> <NIm> <Test> [step]\n");
-        printf("NRe  - Number of real points to run iteration on\n");
-        printf("NIm  - number of imaginary points to run iteration on\n");
-        printf("Test - Which test to run\n");
-        printf("Step - optional, use to output at each step\n");
+    if (argc < 2) {
+        printf("Example Usage: ./bin/newton <testName> [NRe=300] NIm=300] [ReSpacing=3] [ImSpacing=3] \
+                [L1=false] [step=false] \n");
+
+        printf("testName  - name of the test, if bigTest or bigTest2, the other options will be ignored\n");
+        printf("NRe       - Number of real points to run iteration on\n");
+        printf("NIm       - number of imaginary points to run iteration on\n");
+        printf("ReSpacing - if 4, then the real values will be spaced from -4 to 4\n");
+        printf("ImSpacing - same as ReSpacing but for the imaginary values\n");
+        printf("L1        - true if you want to use L1 norm to measure distance\n");
+        printf("step      - true if you want to output a png for each step\n");
         exit(-1);
     }
-
-    char *test = argv[3];
 
     // device array pointers
     int     *closest;
@@ -82,14 +85,21 @@ int main(int argc, char **argv)
     Complex *zVals;
 
     // will be initialized below based on which test we use
-    dfloat ReSpacing;
-    dfloat ImSpacing;
+    int NRe          = 300;
+    int NIm          = 300;
+    dfloat ReSpacing = 3;
+    dfloat ImSpacing = 3;
+    int norm         = 2;
+    bool step        = false;
+
     int order;
     Polynomial P;
 
+    char *testName = argv[1];
+
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
-    if (strcmp(test, "smallTest") == 0 || strcmp(test, "smallTestL1") == 0) {
+    if (strcmp(testName, "smallTest") == 0) {
         order = 3;
 
         // create a polynomial
@@ -104,7 +114,7 @@ int main(int argc, char **argv)
     }
 
     // random polynomial of order 7
-    else if (strcmp(test, "bigTest") == 0 || strcmp(test, "bigTestL1") == 0) {
+    else if (strcmp(testName, "bigTest") == 0) {
         int max = 10;
         int seed = 123456;
         order = 7;
@@ -117,7 +127,7 @@ int main(int argc, char **argv)
     }
 
     // order 12
-    else if (strcmp(test, "bigTest2") == 0 || strcmp(test, "bigTest2L1") == 0) {
+    else if (strcmp(testName, "bigTest2") == 0) {
         // create a random order 11 polynomial
         int max = 50;
         int seed = 654321;
@@ -129,8 +139,51 @@ int main(int argc, char **argv)
         P = randomPolynomial(order, max, seed);
     }
 
-    else
-        return 0;
+    else {
+        for (int i = 2; i < argc; ++i) {
+
+            // the value to set - i.e. NRe, L1, step
+            char *token = strtok(argv[i], "=");
+
+            // what to set it to
+            char *val = strtok(NULL, "=");
+
+            if (val != NULL)
+            {
+
+                if (strcmp(token, "NRe") == 0)
+                    // if nothing is specified, set to 3, else to the specified value
+                    NRe = atoi(val);
+
+                else if (strcmp(token, "NIm") == 0)
+                    NIm = atoi(val);
+
+                else if (strcmp(token, "ReSpacing") == 0)
+                    ReSpacing = atoi(val);
+
+                else if (strcmp(token, "ImSpacing") == 0)
+                    ImSpacing = atoi(val);
+
+            }
+        }
+
+        // TODO prompt to enter a polynomial
+    }
+
+    // set step and L1, same as above - needs to be done regardless of the test
+    for (int i = 2; i < argc; ++i) {
+        // the value to set - i.e. NRe, L1, step
+        char *token = strtok(argv[i], "=");
+
+        // what to set it to
+        char *val = strtok(NULL, "=");
+
+        if (strcmp(token, "L1") == 0)
+            norm = strcmp(val, "true") == 0 ? 1 : 2;
+
+        else if (strcmp(token, "step") == 0)
+            step = strcmp(val, "true") == 0 ? true : false;
+    }
 
     // P' - derivative of P
     Polynomial Pprime = derivative(P);
@@ -139,8 +192,6 @@ int main(int argc, char **argv)
     Polynomial c_P      = deviceP(P);
     Polynomial c_Pprime = deviceP(Pprime);
 
-    int NRe = atoi(argv[1]);
-    int NIm = atoi(argv[2]);
     int N   = NRe * NIm;
 
     dim3 B(16, 16, 1);
@@ -167,12 +218,7 @@ int main(int argc, char **argv)
 
     // find the solutions - unique values in zVals
     Complex *h_solns = (Complex *)malloc(order * sizeof(Complex));
-
     int nSolns = findSolns(P, h_solns, h_zVals, order, N);
-
-    // TODO
-    int norm = (argc > 4 && strcmp(argv[4], "L1") == 0 ||
-                argc > 5 && strcmp(argv[5], "L1") == 0) ? 1 : 2;
 
     // find closest solutions to each point in zVals
     cudaMalloc(&closest, N * sizeof(int));
@@ -181,8 +227,34 @@ int main(int argc, char **argv)
     cudaMalloc(&solns, nSolns * sizeof(Complex));
     cudaMemcpy(solns, h_solns, nSolns * sizeof(Complex), cudaMemcpyHostToDevice);
 
+    if (step) {
+        // reset zVals
+        fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
+
+        for (int i = 0; i < 50; ++i) {
+            // perform one iteration, copy back to host, then output image
+            cudaMemcpy(h_zVals, zVals, N * sizeof(Complex), cudaMemcpyDeviceToHost);
+
+            // find the closest solution to each value in zVals and store it in closest
+            findClosestSoln<<<G, B>>>(closest, zVals, NRe, NIm, solns, nSolns, norm);
+
+            // fill *closest with an integer corresponding to the solution its closest to
+            // i.e. 0 for if this point is closest to solns[0]
+            int *h_closest = (int *)malloc(N * sizeof(int));
+
+            // copy results back to host
+            cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
+
+            // output image
+            writeImage(("plots/"+std::string(testName)+"Step-"+std::to_string(i)+".png").c_str(),
+                       NRe, NIm, h_closest);
+
+            newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 1);
+        }
+    }
+
     // find the closest solution to each value in zVals and store it in closest
-    findClosestSoln <<<G, B>>> (closest, zVals, NRe, NIm, solns, nSolns, norm);
+    findClosestSoln<<<G, B>>>(closest, zVals, NRe, NIm, solns, nSolns, norm);
 
     // fill *closest with an integer corresponding to the solution its closest to
     // i.e. 0 for if this point is closest to solns[0]
@@ -192,7 +264,7 @@ int main(int argc, char **argv)
     cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
 
     // output image
-    writeImage(("plots/"+std::string(test)+".png").c_str(), NRe, NIm, h_closest);
+    writeImage(("plots/"+std::string(testName)+".png").c_str(), NRe, NIm, h_closest);
 
     // free heap memory
     cudaFree(closest)        ; free(h_closest)     ;
