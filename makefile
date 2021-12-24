@@ -9,6 +9,9 @@ test:
 	nvcc src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -o bin/test -rdc=true
 	./bin/test
 
+debug:
+	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu -lpng -g -G -o bin/newton -rdc=true
+
 setup:
 	if [ ! -d "./bin" ]; then \
 	mkdir bin; \

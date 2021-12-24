@@ -112,7 +112,7 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
     if (x < NRe && y < NIm)
     {
         Complex z = zVals[x + NRe*y];
-        dfloat dist ;
+        dfloat dist;
 
         if (norm == 1)
             dist = L1Distance(solns[0], z);
@@ -131,7 +131,6 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
 
             else
                 currDist = L2Distance(solns[i], z);
-
 
             if (currDist < dist)
             {
