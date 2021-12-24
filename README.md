@@ -4,15 +4,15 @@ Visualizing the convergence of Newton's iteration using CUDA to asynchronously p
 
 ***Note***: This project was my final project for CMDA 4984: SS Scientific Computing at Scale. I've been working on the project since then, but what I submitted for that project is in the `old` branch.
 
-The plots (located in [plots](plots)) are color coded based on which root of a polynomial the initial guess converged to be closest to
+Newton's method is used to find the roots of polynomials using an iterative sequences that (usually) converges to those roots. In this project, the iteration is performed on initial guesses to those roots spaced all over the complex (Real and Imaginary) plane. Then, the values those initial guesses converge to are color-coded based on which root they converged to. For example, initial guesses that converge to the first root we find may be yellow, guesses that converge to the second root we find may be red, and so on. These are known as [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
 
 For example:
 
 ![bigTestPlot](plots/bigTest.png)
 
-The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, there is a root corresponding to the yellow points. Each point colored yellow converged to be closest to that root. A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
+A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
-## Running the Kernel
+## Running the Code
 
 Example use:
 
@@ -28,11 +28,11 @@ make
 
 `testName` can be one of:
 
-| Name          | Description                                  |
-|--             |--                                            |
-| bigTest       | a given order 7 polynomial                   |
-| bigTest2      | a given order 12 polynomial                  |
-| anything else | you will be prompted to specify a polynomial |
+| Name          | Description                                        |
+|--             |--                                                  |
+| bigTest       | a given order 7 polynomial                         |
+| bigTest2      | a given order 12 polynomial                        |
+| anything else | you will be prompted to specify a polynomial (WIP) |
 
 All of the other parameters are optional
 
@@ -52,12 +52,13 @@ For example:
 ```bash
 ./bin/newton bigTest L1=true step=false
 ```
+This will output a png in [plots](plots)
 
-This will output a png in plots, or 50 pngs if you set step to true
+## Step parameter
 
-## Stitching into a Movie
+If step is set to true, the above command will output 50 pngs, one for each step of the iteration.
 
-If you set step to true, to stitch all of the pngs into a movie, run:
+You can then stitch them into an mp4 (and clean up all the pngs) using:
 
 ```bash
 make movie name=testName
