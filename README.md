@@ -21,7 +21,7 @@ Example use:
 make
 
 # run code
-./bin/newton <testName> [NRe=300] NIm=300] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
+./bin/newton <testName> [NRe=300] [NIm=300] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
 ```
 
 *Note*: The values after = can be set by you, 300, 3, false, etc. are just the defaults
