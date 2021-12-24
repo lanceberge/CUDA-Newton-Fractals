@@ -178,9 +178,9 @@ int main(int argc, char **argv)
         if (strcmp(val, "random") == 0) {
             printf("Enter [order] [max] [seed]\n");
             printf("Order - the order of the polynomial\n");
-            printf("Max   - optional, the max value of the coefficients (if 10, then all "
+            printf("Max   - the max value of the coefficients (if 10, then all "
                     "coefficients will be from -10 to 10\n");
-            printf("Seed  - optional, seed the random polynomial (seeds drand48)\n");
+            printf("Seed  - seed the random polynomial (seeds drand48)\n");
 
             scanf(" %99[^\n]", str);
 
