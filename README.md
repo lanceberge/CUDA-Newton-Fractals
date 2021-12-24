@@ -81,7 +81,8 @@ Example movie: [bigTest.mp4](plots/bigTest.mp4)
 
 ## Dependencies
 
-|-- |-- |
+| Dependency                  | Command to install on Ubuntu             |
+|--                           |--                                        |
 | Libpng                      | sudo apt-get install libpng-dev          |
 | CUDA and a cuda-capable GPU | sudo apt-get install nvidia-cuda-toolkit |
 | ffmpeg (makes the movies)   | sudo apt-get install ffmpeg              |
