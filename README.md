@@ -54,7 +54,7 @@ For example:
 ```
 This will output a png in [plots](plots)
 
-## Step parameter
+## Step Parameter
 
 If step is set to true, the above command will output 50 pngs, one for each step of the iteration.
 
@@ -79,6 +79,30 @@ make movie name=bigTest
 This will output bigTest.mp4 in `plots`
 
 Example movie: [bigTest.mp4](plots/bigTest.mp4)
+
+## Producing a Custom Fractal
+
+You can also input your own polynomial, which will occur if `testName` isn't bigTest or bigTest2. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
+
+```bash
+# ./bin/newton random ReSpacing=1 ImSpacing=1
+Enter up to 99 characters of the roots of your polynomial separated by spaces: ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1
+Or, enter 'random' to get a random polynomial
+random
+Enter [order] [max] [seed]
+Order - the order of the polynomial
+Max   - optional, the max value of the coefficients (if 10, then all coefficients will be from -10 to 10
+Seed  - optional, seed the random polynomial (seeds drand48)
+10 30
+```
+
+This produces the plot:
+
+![random.png](plots.random.png)
+
+This comes from an order 10 polynomial with roots between -30 and 30.
+
+*Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this plot, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
 ## Dependencies
 
