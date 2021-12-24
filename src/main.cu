@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
         char str[100];
 
-        printf("Enter up to 99 characters of the roots of your polynomial separated by spaces: "
+        printf("Enter up to 99 characters of the roots of your polynomial separated by spaces:\n"
                 "ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1\n");
 
         printf("Or, enter 'random' to get a random polynomial\n");
