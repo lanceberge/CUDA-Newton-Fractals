@@ -24,6 +24,8 @@ make
 ./bin/newton <testName> [NRe=300] NIm=300] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
 ```
 
+*Note*: The values after = can be set by you, 300, 3, false, etc. are just the defaults
+
 `testName` can be one of:
 
 | Name          | Description                                  |
@@ -65,7 +67,7 @@ i.e., if you ran:
 
 ```bash
 ./bin/newton bigTest step=true
-``
+```
 
 Then stitch into a movie with
 
@@ -79,6 +81,7 @@ Example movie: [bigTest.mp4](plots/bigTest.mp4)
 
 ## Dependencies
 
+|-- |-- |
 | Libpng                      | sudo apt-get install libpng-dev          |
 | CUDA and a cuda-capable GPU | sudo apt-get install nvidia-cuda-toolkit |
 | ffmpeg (makes the movies)   | sudo apt-get install ffmpeg              |
