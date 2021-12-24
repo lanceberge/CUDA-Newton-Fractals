@@ -47,9 +47,8 @@ void writeImage(const char *filename, int width, int height, int *buffer)
             ptr[0] = (int)(r[val]*256);
             ptr[1] = (int)(g[val]*256);
             ptr[2] = (int)(b[val]*256);
-
-            /* setRGB(&(row[x * 3]), buffer[y * width + x]); */
         }
+
         png_write_row(png_ptr, row);
     }
 
@@ -65,10 +64,11 @@ void writeImage(const char *filename, int width, int height, int *buffer)
 int main(int argc, char **argv)
 {
     if (argc < 2) {
-        printf("Example Usage: ./bin/newton <testName> [NRe=300] NIm=300] [ReSpacing=3] [ImSpacing=3] \
-                [L1=false] [step=false] \n");
+        printf("Example Usage: ./bin/newton <testName> [NRe=300] NIm=300]\n"
+               "               [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false] \n");
 
-        printf("testName  - name of the test, if bigTest or bigTest2, the other options will be ignored\n");
+        printf("testName  - name of the test, if bigTest or bigTest2, the other "
+                "options will be ignored\n");
         printf("NRe       - Number of real points to run iteration on\n");
         printf("NIm       - number of imaginary points to run iteration on\n");
         printf("ReSpacing - if 4, then the real values will be spaced from -4 to 4\n");
@@ -164,10 +164,63 @@ int main(int argc, char **argv)
             }
         }
 
-        // TODO prompt to enter a polynomial
+        char str[100];
+
+        printf("Enter up to 99 characters of the roots of your polynomial separated by spaces: "
+                "ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1\n");
+
+        printf("Or, enter 'random' to get a random polynomial\n");
+        scanf(" %99[^\n]", str);
+
+        char *val = strtok(str, " ");
+
+        // if random was entered, prompt for an order, max, and seed
+        if (strcmp(val, "random") == 0) {
+            printf("Enter [order] [max] [seed]\n");
+            printf("Order - the order of the polynomial\n");
+            printf("Max   - optional, the max value of the coefficients (if 10, then all "
+                    "coefficients will be from -10 to 10\n");
+            printf("Seed  - optional, seed the random polynomial (seeds drand48)\n");
+
+            scanf(" %99[^\n]", str);
+
+            order = 5;
+            int max  = 10;
+            int seed = 123456;
+
+            char *val = strtok(str, " ");
+            if (val != NULL)
+                order = atoi(val);
+
+            val = strtok(NULL, " ");
+            if (val != NULL)
+                order = atoi(val);
+
+            val = strtok(NULL, " ");
+            if (val != NULL)
+                seed = atoi(val);
+
+            P = randomPolynomial(order, max, seed);
+        }
+
+        // parse each entry separated by spaces into coeffs
+        else {
+            dfloat *coeffs = (dfloat *)malloc(12*sizeof(dfloat));
+
+            int i;
+            for (i = 0; i < 12 && val != NULL; ++i) {
+                coeffs[i] = atof(val);
+                val = strtok(NULL, " ");
+            }
+
+            coeffs = (dfloat *)realloc(coeffs, i*sizeof(dfloat));
+            P.coeffs = coeffs;
+            order = i - 1;
+            P.order = order;
+        }
     }
 
-    // set step and L1, same as above - needs to be done regardless of the test
+    // set step and L1, same as above - needs to be done regardless of the testName
     for (int i = 2; i < argc; ++i) {
         // the value to set - i.e. NRe, L1, step
         char *token = strtok(argv[i], "=");
