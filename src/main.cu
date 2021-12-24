@@ -3,20 +3,6 @@
 #include <stdlib.h>
 #include <string>
 
-// Convert values from 0-11 into RGB triplets in ptr
-void setRGB(png_byte *ptr, int val)
-{
-    // arrays for red, green, and blue percentages
-    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 1, .69 , 1   , 0  , 0};
-    float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0, 0.61, 0.75, 0.6, 0.5};
-    float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0, 0.85, 0.8 , 0.3, 0.5};
-
-    // convert into RGB triplets by multiplying each by 256
-    ptr[0] = (int)(r[val]*256);
-    ptr[1] = (int)(g[val]*256);
-    ptr[2] = (int)(b[val]*256);
-}
-
 // Output the data to png
 // Essentially taken from: http://www.labbookpages.co.uk/software/imgProc/files/libPNG/makePNG.c
 void writeImage(const char *filename, int width, int height, int *buffer)
@@ -45,10 +31,24 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     // write to png row by row
     row = (png_bytep)malloc(3 * width * sizeof(png_byte));
 
+    // arrays for red, green, and blue percentages
+    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 1, .69 , 1   , 0  , 0};
+    float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0, 0.61, 0.75, 0.6, 0.5};
+    float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0, 0.85, 0.8 , 0.3, 0.5};
+
     int x, y;
     for (y = 0; y < height; ++y) {
         for (x = 0; x < height; ++x) {
-            setRGB(&(row[x * 3]), buffer[y * width + x]);
+            png_byte *ptr = &(row[x*3]);
+
+            int val = buffer[y*width + x];
+
+            // convert into RGB triplets by multiplying each by 256
+            ptr[0] = (int)(r[val]*256);
+            ptr[1] = (int)(g[val]*256);
+            ptr[2] = (int)(b[val]*256);
+
+            /* setRGB(&(row[x * 3]), buffer[y * width + x]); */
         }
         png_write_row(png_ptr, row);
     }
@@ -224,6 +224,7 @@ int main(int argc, char **argv)
     cudaMalloc(&solns, nSolns * sizeof(Complex));
     cudaMemcpy(solns, h_solns, nSolns * sizeof(Complex), cudaMemcpyHostToDevice);
 
+    int *h_closest;
     if (step) {
         // reset zVals
         fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
@@ -238,7 +239,7 @@ int main(int argc, char **argv)
 
             // fill *closest with an integer corresponding to the solution its closest to
             // i.e. 0 for if this point is closest to solns[0]
-            int *h_closest = (int *)malloc(N * sizeof(int));
+            h_closest = (int *)malloc(N * sizeof(int));
 
             // copy results back to host
             cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
@@ -257,7 +258,7 @@ int main(int argc, char **argv)
 
         // fill *closest with an integer corresponding to the solution its closest to
         // i.e. 0 for if this point is closest to solns[0]
-        int *h_closest = (int *)malloc(N * sizeof(int));
+        h_closest = (int *)malloc(N * sizeof(int));
 
         // copy results back to host
         cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
