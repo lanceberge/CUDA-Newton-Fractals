@@ -1,5 +1,3 @@
-## TODO: step functionality
-
 newton:
 	make setup
 	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu -O3 -lpng -o bin/newton -rdc=true
