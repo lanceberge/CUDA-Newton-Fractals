@@ -1,4 +1,4 @@
-# CUDA Newton Iteration
+# CUDA Newton Fractals
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
 
