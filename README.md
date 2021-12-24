@@ -36,7 +36,7 @@ make
 
 All of the other parameters are optional
 
-*Note*: If you use bigTest or bigTest2, NRe, NIm, ReSpacing, and ImSpacing will already be set
+*Note*: If you use bigTest or bigTest2, ReSpacing and ImSpacing will already be set
 
 | Parameter | Description                                                |
 |--         | --                                                         |
