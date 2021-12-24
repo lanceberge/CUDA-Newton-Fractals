@@ -105,6 +105,8 @@ This comes from an order 10 polynomial with roots between -30 and 30.
 
 *Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this plot, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
+*Note*: Use the step parameter and make a movie with these custom polynomials! This is done for the image above in [random.mp4](plots/random.mp4).
+
 ## Dependencies
 
 | Dependency                  | Command to install on Ubuntu             |
