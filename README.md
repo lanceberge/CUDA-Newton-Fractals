@@ -10,23 +10,24 @@ For example:
 
 ![bigTestPlot](plots/bigTest.png)
 
-The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, yellow points mean that the initial guesses at those points converged to be closest to the yellow root (circled with a black outline). A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
+The iteration was performed on initial guesses evenly spaced over the complex plane. Each color corresponds to which root the initial guess there converged to be closest to. For example, there is a root corresponding to the yellow points. Each point colored yellow converged to be closest to that root. A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
 ## Running the Kernel
 
 Example use:
 
 ```bash
-make               # compile
+# compile
+make
 
-./bin/newton <testName> [NRe=300] NIm=300] [ReSpacing=3] [ImSpacing=3]
-                        [L1=false] [step=false]
+# run code
+./bin/newton <testName> [NRe=300] NIm=300] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
 ```
 
 `testName` can be one of:
 
 | Name          | Description                                  |
-|--             |                                              |
+|--             |--                                            |
 | bigTest       | a given order 7 polynomial                   |
 | bigTest2      | a given order 12 polynomial                  |
 | anything else | you will be prompted to specify a polynomial |
@@ -36,7 +37,7 @@ All of the other parameters are optional
 *Note*: If you use bigTest or bigTest2, NRe, NIm, ReSpacing, and ImSpacing will already be set
 
 | Parameter | Description                                                |
-|--         |                                                            |
+|--         | --                                                         |
 | NRe       | Number of real initial guess to run iteration on           |
 | NIm       | Number of imaginary guesses                                |
 | ReSpacing | if 4, the real initial guesses will be spaced from -4 to 4 |
@@ -73,6 +74,8 @@ make movie name=bigTest
 ```
 
 This will output bigTest.mp4 in `plots`
+
+Example movie: [bigTest.mp4](plots/bigTest.mp4)
 
 ## Dependencies
 
