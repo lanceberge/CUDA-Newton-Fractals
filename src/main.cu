@@ -295,7 +295,7 @@ int main(int argc, char **argv)
             cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
 
             // output image
-            writeImage(("plots/"+std::string(testName)+"Step-"+std::to_string(i)+".png").c_str(),
+            writeImage(("fractals/"+std::string(testName)+"Step-"+std::to_string(i)+".png").c_str(),
                        NRe, NIm, h_closest);
 
             newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 1);
@@ -314,7 +314,7 @@ int main(int argc, char **argv)
         cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
 
         // output image
-        writeImage(("plots/"+std::string(testName)+".png").c_str(), NRe, NIm, h_closest);
+        writeImage(("fractals/"+std::string(testName)+".png").c_str(), NRe, NIm, h_closest);
     }
 
     // free heap memory
