@@ -20,14 +20,14 @@ runAll:
 	make runBigTest2
 
 runSmallTest:
-	./bin/newton 100 100 smallTest
+	./bin/newton smallTest
 
 runBigTest:
-	./bin/newton 500 500 bigTest
+	./bin/newton bigTest
 
 
 runBigTest2:
-	./bin/newton 500 500 bigTest2
+	./bin/newton bigTest2 NRe=500 NIm=500
 
 name = bigTest
 
