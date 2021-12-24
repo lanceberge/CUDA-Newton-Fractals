@@ -35,5 +35,5 @@ runBigTest2:
 name = bigTest
 
 movie:
-	ffmpeg -y -start_number 0 -r 24 -i plots/$(name)Step-%d.png -b:v 8192k -c:v mpeg4 fractals/$(name).mp4
+	ffmpeg -y -start_number 0 -r 24 -i fractals/$(name)Step-%d.png -b:v 8192k -c:v mpeg4 fractals/$(name).mp4
 	rm fractals/*Step*
