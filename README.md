@@ -85,7 +85,7 @@ Example movie: [bigTest.mp4](plots/bigTest.mp4)
 You can also input your own polynomial, which will occur if `testName` isn't bigTest or bigTest2. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
 ```bash
-# ./bin/newton random ReSpacing=1 ImSpacing=1
+$ ./bin/newton random ReSpacing=1 ImSpacing=1
 Enter up to 99 characters of the roots of your polynomial separated by spaces: ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1
 Or, enter 'random' to get a random polynomial
 random
@@ -98,7 +98,7 @@ Seed  - optional, seed the random polynomial (seeds drand48)
 
 This produces the plot:
 
-![random.png](plots.random.png)
+![random.png](plots/random.png)
 
 This comes from an order 10 polynomial with roots between -30 and 30.
 
