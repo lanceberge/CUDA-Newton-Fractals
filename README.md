@@ -92,8 +92,8 @@ Or, enter 'random' to get a random polynomial
 random
 Enter [order] [max] [seed]
 Order - the order of the polynomial
-Max   - optional, the max value of the coefficients (if 10, then all coefficients will be from -10 to 10
-Seed  - optional, seed the random polynomial (seeds drand48)
+Max   - the max value of the coefficients (if 10, then all coefficients will be from -10 to 10
+Seed  - seed the random polynomial (seeds drand48)
 10 30
 ```
 
