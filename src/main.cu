@@ -97,6 +97,39 @@ int main(int argc, char **argv)
 
     char *testName = argv[1];
 
+    // iterate through command line args and set values
+    for (int i = 2; i < argc; ++i) {
+        // the value to set - i.e. NRe, L1, step
+        char *token = strtok(argv[i], "=");
+
+        // what to set it to
+        char *val = strtok(NULL, "=");
+
+        if (token != NULL && val != NULL) {
+            if (strcmp(token, "L1") == 0)
+                norm = strcmp(val, "true") == 0 ? 1 : 2;
+
+            else if (strcmp(token, "step") == 0)
+                step = strcmp(val, "true") == 0 ? true : false;
+
+            else if (strcmp(token, "NRe") == 0)
+                // if nothing is specified, set to 3, else to the specified value
+                NRe = atoi(val);
+
+            else if (strcmp(token, "NIm") == 0)
+                NIm = atoi(val);
+
+            else if (strcmp(token, "ReSpacing") == 0)
+                ReSpacing = atoi(val);
+
+            else if (strcmp(token, "ImSpacing") == 0)
+                ImSpacing = atoi(val);
+        }
+    }
+
+    // based on testName - either set the default values for these polynomials, or
+    // prompt for a custom polynomial
+
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
     if (strcmp(testName, "smallTest") == 0) {
@@ -139,50 +172,29 @@ int main(int argc, char **argv)
         P = randomPolynomial(order, max, seed);
     }
 
+    // prompt for custom polynomial
     else {
-        for (int i = 2; i < argc; ++i) {
-
-            // the value to set - i.e. NRe, L1, step
-            char *token = strtok(argv[i], "=");
-
-            // what to set it to
-            char *val = strtok(NULL, "=");
-
-            if (val != NULL) {
-                if (strcmp(token, "NRe") == 0)
-                    // if nothing is specified, set to 3, else to the specified value
-                    NRe = atoi(val);
-
-                else if (strcmp(token, "NIm") == 0)
-                    NIm = atoi(val);
-
-                else if (strcmp(token, "ReSpacing") == 0)
-                    ReSpacing = atoi(val);
-
-                else if (strcmp(token, "ImSpacing") == 0)
-                    ImSpacing = atoi(val);
-            }
-        }
-
         char str[100];
 
-        printf("Enter up to 99 characters of the roots of your polynomial separated by spaces:\n"
-                "ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1\n");
+        do {
+            printf("Enter up to 99 characters of the roots of your polynomial separated by spaces:\n"
+                    "ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1\n");
 
-        printf("Or, enter 'random' to get a random polynomial\n");
-        scanf(" %99[^\n]", str);
+            printf("Or, enter 'random' to get a random polynomial\n");
+        } while (scanf(" %99[^\n]", str) != 1);
 
         char *val = strtok(str, " ");
 
         // if random was entered, prompt for an order, max, and seed
         if (strcmp(val, "random") == 0) {
-            printf("Enter [order] [max] [seed]\n");
-            printf("Order - the order of the polynomial\n");
-            printf("Max   - the max value of the coefficients (if 10, then all "
-                    "coefficients will be from -10 to 10\n");
-            printf("Seed  - seed the random polynomial (seeds drand48)\n");
+            do {
+                printf("Enter [order] [max] [seed]\n");
+                printf("Order - the order of the polynomial\n");
+                printf("Max   - the max value of the coefficients (if 10, then all "
+                        "coefficients will be from -10 to 10\n");
+                printf("Seed  - seed the random polynomial (seeds drand48)\n");
 
-            scanf(" %99[^\n]", str);
+            } while (scanf(" %99[^\n]", str) != 1);
 
             order = 5;
             int max  = 10;
@@ -218,21 +230,6 @@ int main(int argc, char **argv)
             order = i - 1;
             P.order = order;
         }
-    }
-
-    // set step and L1, same as above - needs to be done regardless of the testName
-    for (int i = 2; i < argc; ++i) {
-        // the value to set - i.e. NRe, L1, step
-        char *token = strtok(argv[i], "=");
-
-        // what to set it to
-        char *val = strtok(NULL, "=");
-
-        if (strcmp(token, "L1") == 0)
-            norm = strcmp(val, "true") == 0 ? 1 : 2;
-
-        else if (strcmp(token, "step") == 0)
-            step = strcmp(val, "true") == 0 ? true : false;
     }
 
     // P' - derivative of P
