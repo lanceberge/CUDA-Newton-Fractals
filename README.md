@@ -8,7 +8,7 @@ Newton's method is used to find the roots of polynomials using an iterative sequ
 
 For example:
 
-![bigTestPlot](plots/bigTest.png)
+![bigTestPlot](fractals/bigTest.png)
 
 A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
@@ -52,7 +52,7 @@ For example:
 ```bash
 ./bin/newton bigTest L1=true step=false
 ```
-This will output a png in [plots](plots)
+This will output a png in [fractals](fractals)
 
 ## Step Parameter
 
@@ -76,9 +76,9 @@ Then stitch into a movie with
 make movie name=bigTest
 ```
 
-This will output bigTest.mp4 in `plots`
+This will output bigTest.mp4 in [fractals](fractals).
 
-Example movie: [bigTest.mp4](plots/bigTest.mp4)
+Example movie: [bigTest.mp4](fractals/bigTest.mp4)
 
 ## Producing a Custom Fractal
 
@@ -99,13 +99,13 @@ Seed  - seed the random polynomial (seeds drand48)
 
 This produces the plot:
 
-![random.png](plots/random.png)
+![random.png](fractals/random.png)
 
 This comes from an order 10 polynomial with roots between -30 and 30.
 
 *Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this plot, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
-*Note*: Use the step parameter and make a movie with these custom polynomials! This is done for the image above in [random.mp4](plots/random.mp4).
+*Note*: Use the step parameter and make a movie with these custom polynomials! This is done for the image above in [random.mp4](fractals/random.mp4).
 
 ## Dependencies
 
