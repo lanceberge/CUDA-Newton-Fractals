@@ -251,7 +251,7 @@ int main(int argc, char **argv)
     cudaMalloc(&zValsInitial, N * sizeof(Complex));
     cudaMalloc(&zVals       , N * sizeof(Complex));
 
-    Complex *h_zVals        = (Complex *)malloc(N * sizeof(Complex));
+    Complex *h_zVals = (Complex *)malloc(N * sizeof(Complex));
 
     // initialize arrays - evenly spaced over complex plane
     fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
