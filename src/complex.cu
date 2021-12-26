@@ -1,7 +1,7 @@
 #include "complex.h"
 
 // return the product of two complex numbers
-__device__ Complex Complex::operator*(Complex z2)
+__device__ Complex Complex::operator*(const Complex& z2)
 {
     dfloat Re = this->Re*z2.Re - this->Im*z2.Im;
     dfloat Im = this->Re*z2.Im + this->Im*z2.Re;
@@ -11,7 +11,7 @@ __device__ Complex Complex::operator*(Complex z2)
 }
 
 // subtract two complex numbers
-__device__ Complex Complex::operator-(Complex z2)
+__device__ Complex Complex::operator-(const Complex& z2)
 {
     Complex z = {this->Re - z2.Re, this->Im - z2.Im};
     return z;
@@ -19,7 +19,7 @@ __device__ Complex Complex::operator-(Complex z2)
 
 // divide two complex numbers - implementation from
 // https://pixel.ecn.purdue.edu:8443/purpl/WSJ/projects/DirectionalStippling/include/cuComplex.h
-__device__ Complex Complex::operator/(Complex z2)
+__device__ Complex Complex::operator/(const Complex& z2)
 {
     dfloat s = (fabs(z2.Re)) + (fabs(z2.Im));
     dfloat oos = 1.0 / s;
@@ -39,7 +39,7 @@ __device__ Complex Complex::operator/(Complex z2)
 }
 
 // print a complex number
-void Complex::printComplex(Complex z)
+void Complex::printComplex(const Complex& z)
 {
     printf("Re: %f, Im: %f\n", z.Re, z.Im);
 }
