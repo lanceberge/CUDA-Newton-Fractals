@@ -1,5 +1,4 @@
-#ifndef __COMPLEX_H__
-#define __COMPLEX_H__
+#pragma once
 
 #define dfloat double
 
@@ -23,5 +22,3 @@ struct Complex
     // print to stdout
     void printComplex(Complex z);
 };
-
-#endif
