@@ -28,11 +28,11 @@ make
 
 `testName` can be one of:
 
-| Name          | Description                                        |
-|--             |--                                                  |
-| bigTest       | a given order 7 polynomial                         |
-| bigTest2      | a given order 12 polynomial                        |
-| anything else | you will be prompted to specify a polynomial (WIP) |
+| Name          | Description                                  |
+|--             |--                                            |
+| bigTest       | a given order 7 polynomial                   |
+| bigTest2      | a given order 12 polynomial                  |
+| anything else | you will be prompted to specify a polynomial |
 
 All of the other parameters are optional
 
