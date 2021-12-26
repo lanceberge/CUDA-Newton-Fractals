@@ -2,7 +2,7 @@
 #include "complex.h"
 
 // find the first derivative of a polynomial
-Polynomial derivative(Polynomial P)
+Polynomial derivative(const Polynomial& P)
 {
     int order = P.order;
 
@@ -22,9 +22,9 @@ Polynomial derivative(Polynomial P)
 }
 
 // find P(z) - plug in a point z to the polynomial
-__host__ __device__ Complex Pz(Polynomial P, Complex z)
+__host__ __device__ Complex Pz(const Polynomial& P, const Complex& z)
 {
-    dfloat *coeffs = P.coeffs;
+    const dfloat *coeffs = P.coeffs;
     int order = P.order;
 
     dfloat ReSum = coeffs[order];
@@ -52,7 +52,7 @@ __host__ __device__ Complex Pz(Polynomial P, Complex z)
 }
 
 // create a device version of host polynomial P
-Polynomial deviceP(Polynomial h_P)
+Polynomial deviceP(const Polynomial& h_P)
 {
     Polynomial c_P;
 
@@ -93,7 +93,7 @@ Polynomial randomPolynomial(int order, int max, int seed)
 }
 
 // print to stdout
-void printP(Polynomial P)
+void printP(const Polynomial& P)
 {
     dfloat *coeffs = P.coeffs;
     int order      = P.order;

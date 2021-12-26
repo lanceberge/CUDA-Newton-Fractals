@@ -1,5 +1,4 @@
-#ifndef __NEWTON_H__
-#define __NEWTON_H__
+#pragma once
 
 #include "polynomial.h"
 
@@ -24,5 +23,3 @@ __device__ dfloat L2Distance(Complex z1, Complex z2);
 
 // L1 distance between two points
 __device__ dfloat L1Distance(Complex z1, Complex z2);
-
-#endif
