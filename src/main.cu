@@ -239,6 +239,9 @@ int main(int argc, char **argv)
     Polynomial c_P      = deviceP(P);
     Polynomial c_Pprime = deviceP(Pprime);
 
+    // no longer used
+    free(P.coeffs);
+
     int N   = NRe * NIm;
 
     dim3 B(16, 16, 1);
@@ -248,14 +251,10 @@ int main(int argc, char **argv)
     cudaMalloc(&zValsInitial, N * sizeof(Complex));
     cudaMalloc(&zVals       , N * sizeof(Complex));
 
-    Complex *h_zValsInitial = (Complex *)malloc(N * sizeof(Complex));
     Complex *h_zVals        = (Complex *)malloc(N * sizeof(Complex));
 
     // initialize arrays - evenly spaced over complex plane
     fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
-
-    // copy to host
-    cudaMemcpy(h_zValsInitial, zValsInitial, N * sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // perform 500 steps of the iteration and copy result back to host
     newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 500);
@@ -267,6 +266,8 @@ int main(int argc, char **argv)
     Complex *h_solns = (Complex *)malloc(order * sizeof(Complex));
     int nSolns = findSolns(P, h_solns, h_zVals, order, N);
 
+    free(h_zVals);
+
     // find closest solutions to each point in zVals
     cudaMalloc(&closest, N * sizeof(int));
 
@@ -274,22 +275,20 @@ int main(int argc, char **argv)
     cudaMalloc(&solns, nSolns * sizeof(Complex));
     cudaMemcpy(solns, h_solns, nSolns * sizeof(Complex), cudaMemcpyHostToDevice);
 
+    free(h_solns);
+
+    // array for closest solutions
     int *h_closest;
+    h_closest = (int *)malloc(N * sizeof(int));
+
+    // loop over 50 steps and output an image for each
     if (step) {
         // reset zVals
         fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
-        // perform one iteration and output an image for each
         for (int i = 0; i < 50; ++i) {
-            // perform one iteration, copy back to host, then output image
-            cudaMemcpy(h_zVals, zVals, N * sizeof(Complex), cudaMemcpyDeviceToHost);
-
             // find the closest solution to each value in zVals and store it in closest
             findClosestSoln<<<G, B>>>(closest, zVals, NRe, NIm, solns, nSolns, norm);
-
-            // fill *closest with an integer corresponding to the solution its closest to
-            // i.e. 0 for if this point is closest to solns[0]
-            h_closest = (int *)malloc(N * sizeof(int));
 
             // copy results back to host
             cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
@@ -298,17 +297,15 @@ int main(int argc, char **argv)
             writeImage(("fractals/"+std::string(testName)+"Step-"+std::to_string(i)+".png").c_str(),
                        NRe, NIm, h_closest);
 
+            // perform 1 iteration
             newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 1);
         }
     }
 
+    // just output the one image
     else {
         // find the closest solution to each value in zVals and store it in closest
         findClosestSoln<<<G, B>>>(closest, zVals, NRe, NIm, solns, nSolns, norm);
-
-        // fill *closest with an integer corresponding to the solution its closest to
-        // i.e. 0 for if this point is closest to solns[0]
-        h_closest = (int *)malloc(N * sizeof(int));
 
         // copy results back to host
         cudaMemcpy(h_closest, closest, N * sizeof(int), cudaMemcpyDeviceToHost);
@@ -318,11 +315,15 @@ int main(int argc, char **argv)
     }
 
     // free heap memory
-    cudaFree(closest)        ; free(h_closest)     ;
-    cudaFree(zVals)          ; free(h_zVals)       ;
-    cudaFree(zValsInitial)   ; free(h_zValsInitial);
-    cudaFree(c_P.coeffs)     ; free(P.coeffs)      ;
+    free(h_closest);
+
+    cudaFree(closest);
+    cudaFree(solns);
+    cudaFree(zVals);
+    cudaFree(zValsInitial);
+
+    cudaFree(c_P.coeffs);
     cudaFree(c_Pprime.coeffs);
-    cudaFree(solns)          ; free(h_solns)       ;
+
     return 0;
 }
