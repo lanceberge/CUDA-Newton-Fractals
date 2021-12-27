@@ -9,7 +9,11 @@ Newton's method is used to find the roots of polynomials using an iterative sequ
 For example:
 
 
-![bigTest](fractals/bigTest.png) ![bigTest2](fractals/bigTest2.png)
+`order7`
+![order7](fractals/order7.png)
+
+`order12`
+![order12](fractals/order12.png)
 
 A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
@@ -22,22 +26,22 @@ Example use:
 make
 
 # run code
-./bin/newton <testName> [NRe=300] [NIm=300] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
+./bin/newton <testName> [NRe=500] [NIm=500] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
 ```
 
-*Note*: The values after = can be set by you, 300, 3, false, etc. are just the defaults
+*Note*: The values after = can be set by you, 500, 3, false, etc. are just the defaults
 
 `testName` can be one of:
 
 | Name          | Description                                  |
 |--             |--                                            |
-| bigTest       | a given order 7 polynomial                   |
-| bigTest2      | a given order 12 polynomial                  |
+| order7        | a given order 7 polynomial                   |
+| order12       | a given order 12 polynomial                  |
 | anything else | you will be prompted to specify a polynomial |
 
 All of the other parameters are optional
 
-*Note*: If you use bigTest or bigTest2, ReSpacing and ImSpacing will already be set
+*Note*: If you use order7 or order12, ReSpacing and ImSpacing will already be set
 
 | Parameter | Description                                                |
 |--         | --                                                         |
@@ -51,7 +55,7 @@ All of the other parameters are optional
 For example:
 
 ```bash
-./bin/newton bigTest L1=true step=false
+./bin/newton order7 L1=true step=false
 ```
 This will output a png in [fractals](fractals)
 
@@ -68,22 +72,22 @@ make movie name=testName
 i.e., if you ran:
 
 ```bash
-./bin/newton bigTest step=true
+./bin/newton order7 step=true
 ```
 
 Then stitch into a movie with
 
 ```bash
-make movie name=bigTest
+make movie name=order7
 ```
 
-This will output bigTest.mp4 in [fractals](fractals).
+This will output order7.mp4 in [fractals](fractals).
 
-Example movie: [bigTest.mp4](fractals/bigTest.mp4)
+Example movie: [order7.mp4](fractals/order7.mp4)
 
 ## Producing a Custom Fractal
 
-You can also input your own polynomial, which will occur if `testName` isn't bigTest or bigTest2. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
+You can also input your own polynomial, which will occur if `testName` isn't order7 or order12. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
 ```bash
 $ ./bin/newton random ReSpacing=1 ImSpacing=1
