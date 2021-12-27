@@ -16,21 +16,17 @@ setup:
 	fi
 
 runAll:
-	make runSmallTest
-	make runBigTest
-	make runBigTest2
+	make runOrder7
+	make runOrder12
 
-runSmallTest:
-	./bin/newton smallTest
-
-runBigTest:
-	./bin/newton bigTest
+runOrder7:
+	./bin/newton order7
 
 
-runBigTest2:
-	./bin/newton bigTest2
+runOrder12:
+	./bin/newton order12
 
-name = bigTest
+name = order7
 
 movie:
 	ffmpeg -y -start_number 0 -r 24 -i fractals/$(name)Step-%d.png -b:v 8192k -c:v mpeg4 fractals/$(name).mp4

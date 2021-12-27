@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     // prompt for a custom polynomial
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
-    // 0, ~1.78, ~-.28
+    // 0, ~1.78, ~-.28 (for debugging)
     if (strcmp(testName, "smallTest") == 0) {
 
         // create an order 3 polynomial
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     }
 
     // random polynomial of order 7
-    else if (strcmp(testName, "bigTest") == 0) {
+    else if (strcmp(testName, "order7") == 0) {
         int max = 10;
         int seed = 123456;
         order = 7;
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     }
 
     // order 12
-    else if (strcmp(testName, "bigTest2") == 0) {
+    else if (strcmp(testName, "order12") == 0) {
         // create a random order 11 polynomial
         int max = 50;
         int seed = 654321;
