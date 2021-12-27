@@ -81,9 +81,7 @@ Then stitch into a movie with
 make movie name=order7
 ```
 
-This will output order7.mp4 in [fractals](fractals).
-
-Example movie: [order7.mp4](fractals/order7.mp4)
+This will output [order7.mp4](fractals/order7.mp4) in [fractals](fractals).
 
 ## Producing a Custom Fractal
 
