@@ -8,7 +8,8 @@ Newton's method is used to find the roots of polynomials using an iterative sequ
 
 For example:
 
-![bigTestPlot](fractals/bigTest.png)
+
+![bigTest](fractals/bigTest.png) ![bigTest2](fractals/bigTest2.png)
 
 A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 

@@ -169,8 +169,8 @@ int main(int argc, char **argv)
 
         order = 12;
 
-        ReSpacing = 5;
-        ImSpacing = 5;
+        ReSpacing = 2;
+        ImSpacing = 2;
         h_coeffs = randomCoeffs(order, max, seed);
 
         if (!step) {
