@@ -28,7 +28,7 @@ runBigTest:
 
 
 runBigTest2:
-	./bin/newton bigTest2 NRe=500 NIm=500
+	./bin/newton bigTest2
 
 name = bigTest
 
