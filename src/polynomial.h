@@ -5,25 +5,30 @@
 
 // a struct representing polynomials - i.e. the polynomial Ax^3 + Cx + D
 // would have order=3 and coeffs=[A,0,C,D]
-typedef struct Polynomial
+struct Polynomial
 {
     int order;
-    dfloat *coeffs;
+    dfloat *h_coeffs;
+    dfloat *c_coeffs;
 
-} Polynomial;
+    // coeffs is an array of size order
+    Polynomial(int order, dfloat *h_coeffs);
 
-// return the first derivative of a polynomial
-Polynomial derivative(const Polynomial& P);
+    // copy constructor
+    Polynomial(const Polynomial& p);
 
-// find P(z) - plug in a point z to the polynomial
-__host__ __device__ Complex Pz(const Polynomial& P, const Complex& z);
+    // return the first derivative of a polynomial
+    Polynomial derivative();
 
-// return h_P with device coeffs array
-Polynomial deviceP(const Polynomial& h_P);
+    // find P(z) - plug in a point z to the polynomial
+    __device__ Complex c_Pz(const Complex& z) const;
 
-// return a random polynomial with a specified order, with coefficients
-// random between -max and max. seed is the seed for drand
-Polynomial randomPolynomial(int order, int max, int seed);
+    // host version of P(z)
+    __host__ Complex h_Pz(const Complex& z) const;
 
-// print to stdout
-void printP(const Polynomial& P);
+    ~Polynomial();
+};
+
+// return the coeffs to a random polynomial, each coeff is between
+// -max and max. seed is the seed for drand
+dfloat *randomCoeffs(int order, int max, int seed);

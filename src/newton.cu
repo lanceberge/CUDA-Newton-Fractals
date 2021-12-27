@@ -44,8 +44,8 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
         for (int i = 0; i < Nit; ++i)
         {
             // find P(z) and P'(z)
-            Complex P_z      = Pz(P, z);
-            Complex P_primeZ = Pz(Pprime, z);
+            Complex P_z      = P.c_Pz(z);
+            Complex P_primeZ = Pprime.c_Pz(z);
 
             // perform one iteration
             z = z - P_z/P_primeZ;
@@ -73,7 +73,7 @@ int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
 
         // if this isn't a valid solution, i.e. the iteration didn't converge
         // to a solution for that initial guess
-        Complex P_z = Pz(P, curr);
+        Complex P_z = P.h_Pz(curr);
 
         // if this value isn't a root; if P(z)'s Re or Im value's aren't 0
         if (!(fabs(P_z.Re) < 1e-10 && fabs(P_z.Im) < 1e-10))

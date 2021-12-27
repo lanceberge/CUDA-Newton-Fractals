@@ -29,10 +29,10 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     png_write_info(png_ptr, info_ptr);
 
     // write to png row by row
-    row = (png_bytep)malloc(3 * width * sizeof(png_byte));
+    row = (png_bytep)malloc(3*width*sizeof(png_byte));
 
     // arrays for red, green, and blue percentages
-    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 1, .69 , 1   , 0  , 0};
+    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 1, 0.69, 1   , 0  , 0};
     float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0, 0.61, 0.75, 0.6, 0.5};
     float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0, 0.85, 0.8 , 0.3, 0.5};
 
@@ -85,15 +85,16 @@ int main(int argc, char **argv)
     Complex *zVals;
 
     // will be initialized below based on which test we use
-    int NRe          = 300;
-    int NIm          = 300;
     dfloat ReSpacing = 3;
     dfloat ImSpacing = 3;
     int norm         = 2;
     bool step        = false;
+    int NRe = 500;
+    int NIm = 500;
 
+    // characteristics of the polynomial
     int order;
-    Polynomial P;
+    dfloat *h_coeffs;
 
     char *testName = argv[1];
 
@@ -127,18 +128,17 @@ int main(int argc, char **argv)
         }
     }
 
+
     // based on testName - either set the default values for these polynomials, or
     // prompt for a custom polynomial
 
     // test on -4x^3 + 6x^2 + 2x = 0, which has roots
     // 0, ~1.78, ~-.28
     if (strcmp(testName, "smallTest") == 0) {
-        order = 3;
 
-        // create a polynomial
-        dfloat *coeffs = new dfloat[4]{-4, 6, 2, 0};
-        P.coeffs = coeffs;
-        P.order = order;
+        // create an order 3 polynomial
+        order = 3;
+        h_coeffs = new dfloat[4] {-4, 6, 2, 0};
 
         // the spacing on our grid, i.e. 1000 => run iteration on Nx and Ny evenly
         // spaced points from -1000 to 1000 on x and y
@@ -153,10 +153,12 @@ int main(int argc, char **argv)
         order = 7;
 
         // create a random order 7 polynomial
-        P = randomPolynomial(order, max, seed);
+        h_coeffs = randomCoeffs(order, max, seed);
 
-        ReSpacing = 4;
-        ImSpacing = 4;
+        if (!step) {
+            NRe = 1000;
+            NIm = 1000;
+        }
     }
 
     // order 12
@@ -169,7 +171,12 @@ int main(int argc, char **argv)
 
         ReSpacing = 5;
         ImSpacing = 5;
-        P = randomPolynomial(order, max, seed);
+        h_coeffs = randomCoeffs(order, max, seed);
+
+        if (!step) {
+            NRe = 1000;
+            NIm = 1000;
+        }
     }
 
     // prompt for custom polynomial
@@ -212,37 +219,28 @@ int main(int argc, char **argv)
             if (val != NULL)
                 seed = atoi(val);
 
-            P = randomPolynomial(order, max, seed);
+            h_coeffs = randomCoeffs(order, max, seed);
         }
 
         // parse each entry separated by spaces into coeffs
         else {
-            dfloat *coeffs = (dfloat *)malloc(12*sizeof(dfloat));
+            h_coeffs = new dfloat[12];
 
             int i;
             for (i = 0; i < 12 && val != NULL; ++i) {
-                coeffs[i] = atof(val);
+                h_coeffs[i] = atof(val);
                 val = strtok(NULL, " ");
             }
 
-            coeffs = (dfloat *)realloc(coeffs, i*sizeof(dfloat));
-            P.coeffs = coeffs;
             order = i - 1;
-            P.order = order;
         }
     }
 
-    // P' - derivative of P
-    Polynomial Pprime = derivative(P);
+    // create our polynomial and its first derivative
+    Polynomial P(order, h_coeffs);
 
-    // device versions for newtonIterate
-    Polynomial c_P      = deviceP(P);
-    Polynomial c_Pprime = deviceP(Pprime);
-
-    // no longer used
-    free(P.coeffs);
-
-    int N   = NRe * NIm;
+    Polynomial Pprime = P.derivative();
+    int N = NRe * NIm;
 
     dim3 B(16, 16, 1);
     dim3 G((NRe + 16 - 1) / 16, (NRe + 16 - 1) / 16);
@@ -251,19 +249,19 @@ int main(int argc, char **argv)
     cudaMalloc(&zValsInitial, N * sizeof(Complex));
     cudaMalloc(&zVals       , N * sizeof(Complex));
 
-    Complex *h_zVals = (Complex *)malloc(N * sizeof(Complex));
+    Complex *h_zVals = (Complex *)malloc(N*sizeof(Complex));
 
     // initialize arrays - evenly spaced over complex plane
     fillArrays<<<G, B>>>(ReSpacing, ImSpacing, zValsInitial, zVals, NRe, NIm);
 
     // perform 500 steps of the iteration and copy result back to host
-    newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 500);
+    newtonIterate<<<G, B>>>(zVals, P, Pprime, NRe, NIm, 500);
 
     // copy result to host
     cudaMemcpy(h_zVals, zVals, N * sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // find the solutions - unique values in zVals
-    Complex *h_solns = (Complex *)malloc(order * sizeof(Complex));
+    Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
     int nSolns = findSolns(P, h_solns, h_zVals, order, N);
 
     free(h_zVals);
@@ -279,7 +277,7 @@ int main(int argc, char **argv)
 
     // array for closest solutions
     int *h_closest;
-    h_closest = (int *)malloc(N * sizeof(int));
+    h_closest = new int[N];
 
     // loop over 50 steps and output an image for each
     if (step) {
@@ -298,7 +296,7 @@ int main(int argc, char **argv)
                        NRe, NIm, h_closest);
 
             // perform 1 iteration
-            newtonIterate<<<G, B>>>(zVals, c_P, c_Pprime, NRe, NIm, 1);
+            newtonIterate<<<G, B>>>(zVals, P, Pprime, NRe, NIm, 1);
         }
     }
 
@@ -315,15 +313,12 @@ int main(int argc, char **argv)
     }
 
     // free heap memory
-    free(h_closest);
+    delete[] h_closest;
 
     cudaFree(closest);
     cudaFree(solns);
     cudaFree(zVals);
     cudaFree(zValsInitial);
-
-    cudaFree(c_P.coeffs);
-    cudaFree(c_Pprime.coeffs);
 
     return 0;
 }
