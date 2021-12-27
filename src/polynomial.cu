@@ -31,7 +31,7 @@ __host__ __device__ Complex Pz(const Polynomial& P, const Complex& z)
     dfloat ImSum = 0;
 
     // zPow on first iteration, then zPow^2, then ^3, etc.
-    Complex zPow = {z.Re, z.Im};
+    Complex zPow(z.Re, z.Im);
 
     // for A, B, C, D in coeffs. of P, return the cumulative sum of Az^4 + Bz^3 + ...
     for (int i = order-1; i >= 0; --i)
@@ -46,7 +46,7 @@ __host__ __device__ Complex Pz(const Polynomial& P, const Complex& z)
         zPow = zPow*z;
     }
 
-    Complex P_z = {ReSum, ImSum};
+    Complex P_z(ReSum, ImSum);
 
     return P_z;
 }

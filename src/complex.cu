@@ -1,20 +1,24 @@
 #include "complex.h"
 
-// return the product of two complex numbers
-__device__ Complex Complex::operator*(const Complex& z2)
+__host__ __device__ Complex::Complex(dfloat x, dfloat y)
 {
-    dfloat Re = this->Re*z2.Re - this->Im*z2.Im;
-    dfloat Im = this->Re*z2.Im + this->Im*z2.Re;
+    Re = x;
+    Im = y;
+}
 
-    Complex z = {Re, Im};
-    return z;
+// return the product of two complex numbers
+__host__ __device__ Complex Complex::operator*(const Complex& z2)
+{
+    dfloat x = Re*z2.Re - Im*z2.Im;
+    dfloat y = Re*z2.Im + Im*z2.Re;
+
+    return Complex(x, y);
 }
 
 // subtract two complex numbers
 __device__ Complex Complex::operator-(const Complex& z2)
 {
-    Complex z = {this->Re - z2.Re, this->Im - z2.Im};
-    return z;
+    return Complex(Re - z2.Re, Im - z2.Im);
 }
 
 // divide two complex numbers - implementation from
@@ -23,19 +27,17 @@ __device__ Complex Complex::operator/(const Complex& z2)
 {
     dfloat s = (fabs(z2.Re)) + (fabs(z2.Im));
     dfloat oos = 1.0 / s;
-    dfloat ars = this->Re * oos;
-    dfloat ais = this->Im * oos;
-    dfloat brs = z2.Re    * oos;
-    dfloat bis = z2.Im    * oos;
+    dfloat ars = Re * oos;
+    dfloat ais = Im * oos;
+    dfloat brs = z2.Re * oos;
+    dfloat bis = z2.Im * oos;
     s = (brs * brs) + (bis * bis);
     oos = 1.0 / s;
 
     dfloat Re = ((ars * brs) + (ais * bis)) * oos;
     dfloat Im = ((ais * brs) - (ars * bis)) * oos;
 
-    Complex z = {Re, Im};
-
-    return z;
+    return Complex(Re, Im);
 }
 
 // print a complex number
