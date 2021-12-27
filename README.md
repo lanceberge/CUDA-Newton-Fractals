@@ -8,10 +8,6 @@ Newton's method is used to find the roots of polynomials using an iterative sequ
 
 For example:
 
-
-`order7`
-![order7](fractals/order7.png)
-
 `order12`
 ![order12](fractals/order12.png)
 
@@ -33,11 +29,11 @@ make
 
 `testName` can be one of:
 
-| Name          | Description                                  |
-|--             |--                                            |
-| order7        | a given order 7 polynomial                   |
-| order12       | a given order 12 polynomial                  |
-| anything else | you will be prompted to specify a polynomial |
+| Name          | Description                                       |
+|--             |--                                                 |
+| order7        | a given order 7 polynomial                        |
+| order12       | a given order 12 polynomial - fractal shown above |
+| anything else | you will be prompted to specify a polynomial      |
 
 All of the other parameters are optional
 
