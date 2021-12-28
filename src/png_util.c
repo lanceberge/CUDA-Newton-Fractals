@@ -30,10 +30,10 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     row = (png_bytep)malloc(3*width*sizeof(png_byte));
 
     // arrays for red   , green, and blue percentages
-    // blue, orange, purple, light green, dark red, light blue, yellow, dark blue, ... TODO
-    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 0.05   , 0.69, 1   , 0  , 0};
-    float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0.30   , 0.61, 0.75, 0.6, 0.5};
-    float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0.50, 0.85, 0.8 , 0.3, 0.5};
+    // 0-blue, 1-orange, 2-purple, 3-light green, 4-dark red, 5-light blue, 6-yellow, 7-dark blue, 8-light purple, 9-light pink, dark green, yellow
+    float r[12] = {0   , 0.85, 0.49, 0.47, 0.64, 0.30, 0.93, 0.05, 0.69, 1   , 0  ,  1};
+    float g[12] = {0.45, 0.33, 0.18, 0.67, 0.08, 0.75, 0.69, 0.30, 0.51, 0.65, 0.37, 0};
+    float b[12] = {0.74, 0.10, 0.56, 0.19, 0.18, 0.93, 0.13, 0.50, 0.85, 0.8 , 0.17, 0.1};
 
     int x, y;
     for (y = 0; y < height; ++y) {
