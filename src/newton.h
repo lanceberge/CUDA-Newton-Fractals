@@ -12,7 +12,7 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 
 // find all of the unique values in zVals
 int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
-                                     int nSolns, int nVals);
+                  int nSolns, int nVals);
 
 // for each val in zVals, find the solution in solns it's closest to
 __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,

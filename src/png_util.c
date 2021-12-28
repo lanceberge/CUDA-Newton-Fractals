@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "png_util.h"
 
 // Output the data to png

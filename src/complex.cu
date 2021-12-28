@@ -1,10 +1,6 @@
 #include "complex.h"
 
-__host__ __device__ Complex::Complex(dfloat x, dfloat y)
-{
-    Re = x;
-    Im = y;
-}
+__host__ __device__ Complex::Complex(dfloat x, dfloat y) : Re(x), Im(y) {}
 
 // return the product of two complex numbers
 __host__ __device__ Complex Complex::operator*(const Complex& z2)
