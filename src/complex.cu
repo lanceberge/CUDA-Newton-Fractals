@@ -1,5 +1,6 @@
 #include "complex.h"
 
+// constructor
 __host__ __device__ Complex::Complex(dfloat x, dfloat y) : Re(x), Im(y) {}
 
 // return the product of two complex numbers
