@@ -24,5 +24,9 @@ runOrder12:
 name = order7
 
 movie:
-	ffmpeg -y -start_number 0 -r 24 -i fractals/$(name)Step-%d.png -b:v 8192k -c:v mpeg4 fractals/$(name).mp4
+	./bin/newton ${name} step=true
+	make stichMovie
+
+stitchMovie:
+	ffmpeg -y -start_number 0 -r 24 -i fractals/${name}Step-%d.png -b:v 8192k -c:v mpeg4 fractals/${name}.mp4
 	rm fractals/*Step*
