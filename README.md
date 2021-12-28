@@ -4,11 +4,11 @@ Visualizing the convergence of Newton's iteration using CUDA to asynchronously p
 
 ***Note***: This project was my final project for CMDA 4984: SS Scientific Computing at Scale. I've been working on the project since then, but what I submitted for that project is in the `old` branch.
 
-Newton's method is used to find the roots of polynomials using an iterative sequences that (usually) converges to those roots. In this project, the iteration is performed on initial guesses evenly spaced all over the complex (Real and Imaginary) plane. Then, the values those initial guesses converge to are color-coded based on which root they converged to. For example, initial guesses that converge to the first root we find may be yellow, guesses that converge to the second root we find may be red, and so on. These are known as [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
+Newton's method is used to find the roots of polynomials using an iterative sequences that (usually) converges to those roots. In this project, the iteration is performed on initial guesses evenly spaced all over the complex (Real and Imaginary) plane. Then, the roots those initial guesses converge to are color-coded based on which root they converged to. For example, initial guesses that converge to the first root we find may be yellow, guesses that converge to the second root we find may be red, and so on. These are known as [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
 
 For example:
 
-`order12`
+[order12](fractals/order12.png)
 ![order12](fractals/order12.png)
 
 A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
@@ -67,8 +67,6 @@ make movie name=testName
 
 *Note*: This will keep all the default parameters (NRe, ReSpacing, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with:
 
-Then stitch into a movie with
-
 ```bash
 make stitchMovie name=testName
 ```
@@ -105,7 +103,7 @@ Seed  - seed the random polynomial (seeds drand48)
 10 20 # an order 10 polynomial with roots between -20 and 20
 ```
 
-This produces the fractal:
+This produces the fractal [fractals/random.png](fractals/random.png):
 
 ![random.png](fractals/random.png)
 
