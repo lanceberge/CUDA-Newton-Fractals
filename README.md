@@ -99,7 +99,7 @@ Seed  - seed the random polynomial (seeds drand48)
 
 This produces the fractal [fractals/randomOrder50.png](fractals/randomOrder50.png):
 
-![random.png](fractals/random.png)
+![randomOrder50.png](fractals/randomOrder50.png)
 
 *Note*: The default xRange and yRange is 3. I set them to 1.5 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
