@@ -14,9 +14,6 @@ struct Polynomial
     // coeffs is an array of size order
     Polynomial(int order, dfloat *h_coeffs);
 
-    // copy constructor
-    Polynomial(const Polynomial& p);
-
     // return the first derivative of a polynomial
     Polynomial derivative();
 
@@ -26,7 +23,7 @@ struct Polynomial
     // host version of P(z)
     __host__ Complex h_Pz(const Complex& z) const;
 
-    ~Polynomial();
+    __host__ __device__ ~Polynomial();
 };
 
 // return the coeffs to a random polynomial, each coeff is between

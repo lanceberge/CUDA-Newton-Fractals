@@ -8,21 +8,7 @@ Polynomial::Polynomial(int order, dfloat *coeffs)
 
     cudaMalloc(&c_coeffs, (order+1)*sizeof(dfloat));
 
-    // copy h_P's coefficients to device array c_P
-    cudaMemcpy(c_coeffs, h_coeffs, (order+1)*sizeof(dfloat), cudaMemcpyHostToDevice);
-}
-
-// copy constructor
-Polynomial::Polynomial(const Polynomial& p)
-{
-    order = p.order;
-    h_coeffs = new dfloat[order+1];
-
-    memcpy(h_coeffs, p.h_coeffs, (order+1)*sizeof(dfloat));
-
-    cudaMalloc(&c_coeffs, (order+1)*sizeof(dfloat));
-
-    // copy h_P's coefficients to device array c_P
+    // copy host coefficients to device array
     cudaMemcpy(c_coeffs, h_coeffs, (order+1)*sizeof(dfloat), cudaMemcpyHostToDevice);
 }
 
@@ -86,10 +72,12 @@ __device__ Complex Polynomial::c_Pz(const Complex& z) const
     return Complex(ReSum, ImSum);
 }
 
-Polynomial::~Polynomial()
+__host__ __device__ Polynomial::~Polynomial()
 {
+    #if !defined(__CUDACC__)
     delete[] h_coeffs;
     cudaFree(c_coeffs);
+    #endif
 }
 
 // return a random polynomial with a specified order, with coefficients
