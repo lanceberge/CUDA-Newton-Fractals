@@ -25,6 +25,7 @@ Polynomial Polynomial::derivative()
     return Polynomial(order - 1, derivative_coeffs);
 }
 
+// find P(z) - plug in a point z to the polynomial - on host coeffs
 __host__ Complex Polynomial::h_Pz(const Complex& z) const
 {
     dfloat ReSum = h_coeffs[order];
@@ -48,7 +49,7 @@ __host__ Complex Polynomial::h_Pz(const Complex& z) const
     return Complex(ReSum, ImSum);
 }
 
-// find P(z) - plug in a point z to the polynomial
+// find P(z) - plug in a point z to the polynomial - on device coeffs
 __device__ Complex Polynomial::c_Pz(const Complex& z) const
 {
     dfloat ReSum = c_coeffs[order];
@@ -72,6 +73,7 @@ __device__ Complex Polynomial::c_Pz(const Complex& z) const
     return Complex(ReSum, ImSum);
 }
 
+// free memory
 __host__ __device__ Polynomial::~Polynomial()
 {
     #if !defined(__CUDACC__)
@@ -80,7 +82,7 @@ __host__ __device__ Polynomial::~Polynomial()
     #endif
 }
 
-// return a random polynomial with a specified order, with coefficients
+// the coefficients of a random polynomial - coefficients are
 // random between -max and max. seed is the seed for drand
 dfloat *randomCoeffs(int order, int max, int seed)
 {
