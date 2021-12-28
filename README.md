@@ -102,16 +102,14 @@ Enter [order] [max] [seed]
 Order - the order of the polynomial
 Max   - the max value of the coefficients (if 10, then all coefficients will be from -10 to 10
 Seed  - seed the random polynomial (seeds drand48)
-10 20
+10 20 # an order 10 polynomial with roots between -20 and 20
 ```
 
 This produces the fractal:
 
 ![random.png](fractals/random.png)
 
-This comes from an order 10 polynomial with roots between -30 and 30.
-
-*Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
+*Note*: The default ReSpacing and ImSpacing is 3. I set them to 1.5 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
 ## Dependencies
 
