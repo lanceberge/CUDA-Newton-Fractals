@@ -43,10 +43,10 @@ make runOrder12
 
 | Parameter | Description                                                |
 |--         | --                                                         |
-| xPixels   | Number of real initial guess to run iteration on           |
-| yPixels   | Number of imaginary guesses                                |
-| xRange    | if 4, the real initial guesses will be spaced from -4 to 4 |
-| yRange    | same as above but for the imaginary values                 |
+| xPixels   | Number of horizontal pixels                                |
+| yPixels   | Number of vertical pixels                                  |
+| xRange    | if 4, x values are between -4 and 4                        |
+| yRange    | same as above but for the y values                         |
 | L1        | set to true if you want to use L1 norm to measure distance |
 | step      | set to true to output a png for each step                  |
 
@@ -65,13 +65,7 @@ You can also creat mp4s of the evolution of the fractals using:
 make movie name=testName
 ```
 
-*Note*: This will keep all the default parameters (xPixels, xRange, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with:
-
-```bash
-make stitchMovie name=testName
-```
-
-For example:
+*Note*: This will keep all the default parameters (xPixels, xRange, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with `make stitchMovie`, for example:
 
 ```bash
 # output pngs for each step
