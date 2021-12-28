@@ -1,14 +1,9 @@
 newton:
 	make setup
-	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu -O3 -lpng -o bin/newton -rdc=true
-
-test:
-	make setup
-	nvcc src/test.cu src/newton.cu src/complex.cu src/polynomial.cu -o bin/test -rdc=true
-	./bin/test
+	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu src/png_util.c -O3 -lpng -o bin/newton -rdc=true
 
 debug:
-	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu -lpng -g -G -o bin/newton -rdc=true
+	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu src/png_util.c -lpng -g -G -o bin/newton -rdc=true
 
 setup:
 	if [ ! -d "./bin" ]; then \
