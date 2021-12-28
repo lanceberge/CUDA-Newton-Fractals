@@ -33,12 +33,12 @@ int main(int argc, char **argv)
     Complex *c_zVals;
 
     // will be initialized below based on which test we use
-    dfloat xRange = 3;
-    dfloat yRange = 3;
+    dfloat xRange = 1.5;
+    dfloat yRange = 1.5;
     int norm      = 2;
     bool step     = false;
-    int xPixels   = 500;
-    int yPixels   = 500;
+    int xPixels   = 1000;
+    int yPixels   = 1000;
 
     // characteristics of the polynomial
     int order;
@@ -102,9 +102,9 @@ int main(int argc, char **argv)
         // create a random order 7 polynomial
         h_coeffs = randomCoeffs(order, max, seed);
 
-        if (!step) {
-            xPixels = 1000;
-            yPixels = 1000;
+        if (step) {
+            xPixels = 500;
+            yPixels = 500;
         }
     }
 
@@ -120,9 +120,9 @@ int main(int argc, char **argv)
         yRange = 2;
         h_coeffs = randomCoeffs(order, max, seed);
 
-        if (!step) {
-            xPixels = 1000;
-            yPixels = 1000;
+        if (step) {
+            xPixels = 500;
+            yPixels = 500;
         }
     }
 
