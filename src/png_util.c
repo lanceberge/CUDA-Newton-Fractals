@@ -29,7 +29,7 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     // write to png row by row
     row = (png_bytep)malloc(3*width*sizeof(png_byte));
 
-    // arrays for red   , green, and blue percentages
+    // arrays for red, green, and blue percentages
     // index 0-blue, 1-orange, 2-purple, 3-light green, 4-dark red, 5-light blue, 6-yellow,
     // 7-dark blue, 8-light purple, 9-light pink, dark green, yellow
     float r[12] = {0   , 0.85, 0.49, 0.47, 0.64, 0.30, 0.93, 0.05, 0.69, 1   , 0  ,  1};
