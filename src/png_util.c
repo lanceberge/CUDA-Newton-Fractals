@@ -30,7 +30,8 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     row = (png_bytep)malloc(3*width*sizeof(png_byte));
 
     // arrays for red   , green, and blue percentages
-    // 0-blue, 1-orange, 2-purple, 3-light green, 4-dark red, 5-light blue, 6-yellow, 7-dark blue, 8-light purple, 9-light pink, dark green, yellow
+    // index 0-blue, 1-orange, 2-purple, 3-light green, 4-dark red, 5-light blue, 6-yellow,
+    // 7-dark blue, 8-light purple, 9-light pink, dark green, yellow
     float r[12] = {0   , 0.85, 0.49, 0.47, 0.64, 0.30, 0.93, 0.05, 0.69, 1   , 0  ,  1};
     float g[12] = {0.45, 0.33, 0.18, 0.67, 0.08, 0.75, 0.69, 0.30, 0.51, 0.65, 0.37, 0};
     float b[12] = {0.74, 0.10, 0.56, 0.19, 0.18, 0.93, 0.13, 0.50, 0.85, 0.8 , 0.17, 0.1};
@@ -42,10 +43,20 @@ void writeImage(const char *filename, int width, int height, int *buffer)
 
             int val = buffer[y*width + x];
 
-            // convert into RGB triplets by multiplying each by 256
-            ptr[0] = (int)(r[val]*255);
-            ptr[1] = (int)(g[val]*255);
-            ptr[2] = (int)(b[val]*255);
+            // if val is > 11, use random colors
+            if (val < 12) {
+                // convert into RGB triplets by multiplying each by 256
+                ptr[0] = (int)(r[val]*255);
+                ptr[1] = (int)(g[val]*255);
+                ptr[2] = (int)(b[val]*255);
+            }
+
+            else {
+                srand(val);
+                ptr[0] = rand() % 255;
+                ptr[1] = rand() % 255;
+                ptr[2] = rand() % 255;
+            }
         }
 
         png_write_row(png_ptr, row);
