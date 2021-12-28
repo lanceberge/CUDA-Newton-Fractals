@@ -12,17 +12,17 @@ extern "C"
 int main(int argc, char **argv)
 {
     if (argc < 2) {
-        printf("Example Usage: ./bin/newton <testName> [NRe=300] NIm=300]\n"
-               "               [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false] \n");
+        printf("Example Usage: ./bin/newton <testName> [xPixels=300] yPixels=300]\n"
+               "               [xRange=3] [yRange=3] [L1=false] [step=false] \n");
 
-        printf("testName  - name of the test, if bigTest or bigTest2, the other "
-                "options will be ignored\n");
-        printf("NRe       - Number of real points to run iteration on\n");
-        printf("NIm       - number of imaginary points to run iteration on\n");
-        printf("ReSpacing - if 4, then the real values will be spaced from -4 to 4\n");
-        printf("ImSpacing - same as ReSpacing but for the imaginary values\n");
-        printf("L1        - true if you want to use L1 norm to measure distance\n");
-        printf("step      - true if you want to output a png for each step\n");
+        printf("testName - name of the test, if bigTest or bigTest2, the other "
+               "           options will be ignored\n");
+        printf("xPixels  - Number of horizontal pixels\n");
+        printf("yPixels  - Number of vertical pixels\n");
+        printf("xRange   - if 4, then the real values will be spaced from -4 to 4\n");
+        printf("yRange   - same as xRange but for the imaginary values\n");
+        printf("L1       - true if you want to use L1 norm to quantify distance\n");
+        printf("step     - true if you want to output a png for each step\n");
         exit(-1);
     }
 
@@ -33,12 +33,12 @@ int main(int argc, char **argv)
     Complex *c_zVals;
 
     // will be initialized below based on which test we use
-    dfloat ReSpacing = 3;
-    dfloat ImSpacing = 3;
-    int norm         = 2;
-    bool step        = false;
-    int NRe = 500;
-    int NIm = 500;
+    dfloat xRange = 3;
+    dfloat yRange = 3;
+    int norm      = 2;
+    bool step     = false;
+    int xPixels   = 500;
+    int yPixels   = 500;
 
     // characteristics of the polynomial
     int order;
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
     // iterate through command line args and set values
     for (int i = 2; i < argc; ++i) {
-        // the value to set - i.e. NRe, L1, step
+        // the value to set - i.e. xPixels, L1, step
         char *token = strtok(argv[i], "=");
 
         // what to set it to
@@ -61,18 +61,18 @@ int main(int argc, char **argv)
             else if (strcmp(token, "step") == 0)
                 step = strcmp(val, "true") == 0 ? true : false;
 
-            else if (strcmp(token, "NRe") == 0)
+            else if (strcmp(token, "xPixels") == 0)
                 // if nothing is specified, set to 3, else to the specified value
-                NRe = atoi(val);
+                xPixels = atoi(val);
 
-            else if (strcmp(token, "NIm") == 0)
-                NIm = atoi(val);
+            else if (strcmp(token, "yPixels") == 0)
+                yPixels = atoi(val);
 
-            else if (strcmp(token, "ReSpacing") == 0)
-                ReSpacing = atoi(val);
+            else if (strcmp(token, "xRange") == 0)
+                xRange = atoi(val);
 
-            else if (strcmp(token, "ImSpacing") == 0)
-                ImSpacing = atoi(val);
+            else if (strcmp(token, "yRange") == 0)
+                yRange = atoi(val);
         }
     }
 
@@ -89,8 +89,8 @@ int main(int argc, char **argv)
 
         // the spacing on our grid, i.e. 1000 => run iteration on Nx and Ny evenly
         // spaced points from -1000 to 1000 on x and y
-        ReSpacing = 4;
-        ImSpacing = 4;
+        xRange = 4;
+        yRange = 4;
     }
 
     // random polynomial of order 7
@@ -103,8 +103,8 @@ int main(int argc, char **argv)
         h_coeffs = randomCoeffs(order, max, seed);
 
         if (!step) {
-            NRe = 1000;
-            NIm = 1000;
+            xPixels = 1000;
+            yPixels = 1000;
         }
     }
 
@@ -116,13 +116,13 @@ int main(int argc, char **argv)
 
         order = 12;
 
-        ReSpacing = 2;
-        ImSpacing = 2;
+        xRange = 2;
+        yRange = 2;
         h_coeffs = randomCoeffs(order, max, seed);
 
         if (!step) {
-            NRe = 1000;
-            NIm = 1000;
+            xPixels = 1000;
+            yPixels = 1000;
         }
     }
 
@@ -187,10 +187,10 @@ int main(int argc, char **argv)
     Polynomial P(order, h_coeffs);
     Polynomial Pprime = P.derivative();
 
-    int N = NRe * NIm;
+    int N = xPixels * yPixels;
 
     dim3 B(16, 16, 1);
-    dim3 G((NRe + 16 - 1) / 16, (NRe + 16 - 1) / 16);
+    dim3 G((xPixels + 16 - 1) / 16, (xPixels + 16 - 1) / 16);
 
     // arrays for initial points and points following iteration
     cudaMalloc(&c_zValsInitial, N*sizeof(Complex));
@@ -199,10 +199,10 @@ int main(int argc, char **argv)
     Complex *h_zVals = (Complex *)malloc(N*sizeof(Complex));
 
     // initialize arrays - evenly spaced over complex plane
-    fillArrays<<<G, B>>>(ReSpacing, ImSpacing, c_zValsInitial, c_zVals, NRe, NIm);
+    fillArrays<<<G, B>>>(xRange, yRange, c_zValsInitial, c_zVals, xPixels, yPixels);
 
     // perform 500 steps of the iteration and copy result back to host
-    newtonIterate<<<G, B>>>(c_zVals, P, Pprime, NRe, NIm, 500);
+    newtonIterate<<<G, B>>>(c_zVals, P, Pprime, xPixels, yPixels, 500);
 
     // copy result to host
     cudaMemcpy(h_zVals, c_zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
@@ -229,34 +229,34 @@ int main(int argc, char **argv)
     // loop over 50 steps and output an image for each
     if (step) {
         // reset zVals
-        fillArrays<<<G, B>>>(ReSpacing, ImSpacing, c_zValsInitial, c_zVals, NRe, NIm);
+        fillArrays<<<G, B>>>(xRange, yRange, c_zValsInitial, c_zVals, xPixels, yPixels);
 
         for (int i = 0; i < 50; ++i) {
             // find the closest solution to each value in zVals and store it in closest
-            findClosestSoln<<<G, B>>>(c_closest, c_zVals, NRe, NIm, c_solns, nSolns, norm);
+            findClosestSoln<<<G, B>>>(c_closest, c_zVals, xPixels, yPixels, c_solns, nSolns, norm);
 
             // copy results back to host
             cudaMemcpy(h_closest, c_closest, N*sizeof(int), cudaMemcpyDeviceToHost);
 
             // output image
             writeImage(("fractals/"+std::string(testName)+"Step-"+std::to_string(i)+".png").c_str(),
-                       NRe, NIm, h_closest);
+                       xPixels, yPixels, h_closest);
 
             // perform 1 iteration
-            newtonIterate<<<G, B>>>(c_zVals, P, Pprime, NRe, NIm, 1);
+            newtonIterate<<<G, B>>>(c_zVals, P, Pprime, xPixels, yPixels, 1);
         }
     }
 
     // just output the one image
     else {
         // find the closest solution to each value in zVals and store it in closest
-        findClosestSoln<<<G, B>>>(c_closest, c_zVals, NRe, NIm, c_solns, nSolns, norm);
+        findClosestSoln<<<G, B>>>(c_closest, c_zVals, xPixels, yPixels, c_solns, nSolns, norm);
 
         // copy results back to host
         cudaMemcpy(h_closest, c_closest, N*sizeof(int), cudaMemcpyDeviceToHost);
 
         // output image
-        writeImage(("fractals/"+std::string(testName)+".png").c_str(), NRe, NIm, h_closest);
+        writeImage(("fractals/"+std::string(testName)+".png").c_str(), xPixels, yPixels, h_closest);
     }
 
     // free heap memory

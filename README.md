@@ -22,7 +22,7 @@ Example use:
 make
 
 # run code
-./bin/newton <testName> [NRe=500] [NIm=500] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
+./bin/newton <testName> [xPixels=500] [yPixels=500] [xRange=3] [yRange=3] [L1=false] [step=false]
 
 ## Or run my provided examples:
 make runOrder7
@@ -39,14 +39,14 @@ make runOrder12
 | order12       | a given order 12 polynomial - fractal shown above |
 | anything else | you will be prompted to specify a polynomial      |
 
-*Note*: If you use order7 or order12, ReSpacing and ImSpacing will already be set
+*Note*: If you use order7 or order12, xRange and yRange will already be set
 
 | Parameter | Description                                                |
 |--         | --                                                         |
-| NRe       | Number of real initial guess to run iteration on           |
-| NIm       | Number of imaginary guesses                                |
-| ReSpacing | if 4, the real initial guesses will be spaced from -4 to 4 |
-| ImSpacing | same as above but for the imaginary values                 |
+| xPixels   | Number of real initial guess to run iteration on           |
+| yPixels   | Number of imaginary guesses                                |
+| xRange    | if 4, the real initial guesses will be spaced from -4 to 4 |
+| yRange    | same as above but for the imaginary values                 |
 | L1        | set to true if you want to use L1 norm to measure distance |
 | step      | set to true to output a png for each step                  |
 
@@ -65,7 +65,7 @@ You can also creat mp4s of the evolution of the fractals using:
 make movie name=testName
 ```
 
-*Note*: This will keep all the default parameters (NRe, ReSpacing, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with:
+*Note*: This will keep all the default parameters (xPixels, xRange, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with:
 
 ```bash
 make stitchMovie name=testName
@@ -75,7 +75,7 @@ For example:
 
 ```bash
 # output pngs for each step
-./bin/newton order12 step=true NRe=1000
+./bin/newton order12 step=true xPixels=1000
 
 # stitch into a movie
 make stitchMovie name=order12
@@ -91,7 +91,7 @@ This will output [order7.mp4](fractals/order7.mp4) in [fractals](fractals).
 You can also input your own polynomial, which will occur if `testName` isn't order7 or order12. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
 ```bash
-$ ./bin/newton random ReSpacing=1.5 ImSpacing=1.5
+$ ./bin/newton random xRange=1.5 yRange=1.5
 Enter up to 99 characters of the roots of your polynomial separated by spaces:
 ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1
 Or, enter 'random' to get a random polynomial
@@ -107,7 +107,7 @@ This produces the fractal [fractals/random.png](fractals/random.png):
 
 ![random.png](fractals/random.png)
 
-*Note*: The default ReSpacing and ImSpacing is 3. I set them to 1.5 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
+*Note*: The default xRange and yRange is 3. I set them to 1.5 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
 ## Dependencies
 
