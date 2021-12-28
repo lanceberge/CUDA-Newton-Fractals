@@ -79,6 +79,9 @@ For example:
 
 # stitch into a movie
 make stitchMovie name=order12
+
+## Or using default parameters
+make movie name=order12
 ```
 
 This will output [order7.mp4](fractals/order7.mp4) in [fractals](fractals).
@@ -100,13 +103,13 @@ Seed  - seed the random polynomial (seeds drand48)
 10 30
 ```
 
-This produces the plot:
+This produces the fractal:
 
 ![random.png](fractals/random.png)
 
 This comes from an order 10 polynomial with roots between -30 and 30.
 
-*Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this plot, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
+*Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
 *Note*: Use the step parameter and make a movie with these custom polynomials! This is done for the image above in [random.mp4](fractals/random.mp4).
 
