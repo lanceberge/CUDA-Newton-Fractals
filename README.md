@@ -85,7 +85,7 @@ This will output [order7.mp4](fractals/order7.mp4) in [fractals](fractals).
 You can also input your own polynomial, which will occur if `testName` isn't order7 or order12. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
 ```bash
-$ ./bin/newton random xRange=1.5 yRange=1.5 xPixels=1000 yPixels=1000
+$ ./bin/newton randomOrder50 xRange=1.5 yRange=1.5 xPixels=2000 yPixels=2000
 Enter up to 99 characters of the roots of your polynomial separated by spaces:
 ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1
 Or, enter 'random' to get a random polynomial
@@ -94,10 +94,10 @@ Enter [order] [max] [seed]
 Order - the order of the polynomial
 Max   - the max value of the coefficients (if 10, then all coefficients will be from -10 to 10
 Seed  - seed the random polynomial (seeds drand48)
-10 20 # an order 10 polynomial with roots between -20 and 20
+50 30 # an order 50 polynomial with roots between -30 and 30
 ```
 
-This produces the fractal [fractals/random.png](fractals/random.png):
+This produces the fractal [fractals/randomOrder50.png](fractals/randomOrder50.png):
 
 ![random.png](fractals/random.png)
 
