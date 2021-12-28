@@ -69,7 +69,7 @@ make movie name=testName
 
 ```bash
 # output pngs for each step
-./bin/newton order12 step=true xPixels=1000
+./bin/newton order12 step=true
 
 # stitch into a movie
 make stitchMovie name=order12
@@ -78,7 +78,7 @@ make stitchMovie name=order12
 make movie name=order12
 ```
 
-This will output [order7.mp4](fractals/order7.mp4) in [fractals](fractals).
+This will output [order12.mp4](fractals/order12.mp4) in [fractals](fractals).
 
 ## Producing a Custom Fractal
 
