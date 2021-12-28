@@ -57,9 +57,7 @@ This will output a png in [fractals](fractals)
 
 ## Creating mp4s of the Evolution
 
-If step is set to true, the above command will output 50 pngs, one for each step of the iteration.
-
-You can then stitch them into an mp4 (and clean up all the pngs) using:
+You can also creat mp4s of the evolution of the fractals using:
 
 ```bash
 make movie name=testName
