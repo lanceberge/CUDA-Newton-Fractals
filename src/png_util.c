@@ -29,10 +29,11 @@ void writeImage(const char *filename, int width, int height, int *buffer)
     // write to png row by row
     row = (png_bytep)malloc(3*width*sizeof(png_byte));
 
-    // arrays for red, green, and blue percentages
-    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 1, 0.69, 1   , 0  , 0};
-    float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0, 0.61, 0.75, 0.6, 0.5};
-    float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0, 0.85, 0.8 , 0.3, 0.5};
+    // arrays for red   , green, and blue percentages
+    // blue, orange, purple, light green, dark red, light blue, yellow, dark blue, ... TODO
+    float r[12] = {0    , 0.85 , 0.494, 0.466, 0.635, 0.301, 0.929, 0.10   , 0.69, 1   , 0  , 0};
+    float g[12] = {0.447, 0.325, 0.184, 0.674, 0.078, 0.745, 0.694, 0.30   , 0.61, 0.75, 0.6, 0.5};
+    float b[12] = {0.741, 0.098, 0.556, 0.188, 0.184, 0.933, 0.125, 0.60, 0.85, 0.8 , 0.3, 0.5};
 
     int x, y;
     for (y = 0; y < height; ++y) {
@@ -42,9 +43,9 @@ void writeImage(const char *filename, int width, int height, int *buffer)
             int val = buffer[y*width + x];
 
             // convert into RGB triplets by multiplying each by 256
-            ptr[0] = (int)(r[val]*256);
-            ptr[1] = (int)(g[val]*256);
-            ptr[2] = (int)(b[val]*256);
+            ptr[0] = (int)(r[val]*255);
+            ptr[1] = (int)(g[val]*255);
+            ptr[2] = (int)(b[val]*255);
         }
 
         png_write_row(png_ptr, row);
