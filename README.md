@@ -23,6 +23,10 @@ make
 
 # run code
 ./bin/newton <testName> [NRe=500] [NIm=500] [ReSpacing=3] [ImSpacing=3] [L1=false] [step=false]
+
+## Or run my provided examples:
+make runOrder7
+make runOrder12
 ```
 
 *Note*: The values after = can be set by you, 500, 3, false, etc. are just the defaults
@@ -34,8 +38,6 @@ make
 | order7        | a given order 7 polynomial                        |
 | order12       | a given order 12 polynomial - fractal shown above |
 | anything else | you will be prompted to specify a polynomial      |
-
-All of the other parameters are optional
 
 *Note*: If you use order7 or order12, ReSpacing and ImSpacing will already be set
 
@@ -110,8 +112,6 @@ This produces the fractal:
 This comes from an order 10 polynomial with roots between -30 and 30.
 
 *Note*: The default ReSpacing and ImSpacing is 3. I set them to 1 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
-
-*Note*: Use the step parameter and make a movie with these custom polynomials! This is done for the image above in [random.mp4](fractals/random.mp4).
 
 ## Dependencies
 
