@@ -1,3 +1,13 @@
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [CUDA Newton Fractals](#cuda-newton-fractals)
+    - [Running the Code](#running-the-code)
+    - [Creating mp4s of the Evolution](#creating-mp4s-of-the-evolution)
+    - [Producing a Custom Fractal](#producing-a-custom-fractal)
+    - [Dependencies](#dependencies)
+
+<!-- markdown-toc end -->
 # CUDA Newton Fractals
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
