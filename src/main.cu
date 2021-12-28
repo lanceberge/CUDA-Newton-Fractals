@@ -76,7 +76,6 @@ int main(int argc, char **argv)
         }
     }
 
-
     // based on testName - either set the default values for these polynomials, or
     // prompt for a custom polynomial
 
@@ -186,8 +185,8 @@ int main(int argc, char **argv)
 
     // create our polynomial and its first derivative
     Polynomial P(order, h_coeffs);
-
     Polynomial Pprime = P.derivative();
+
     int N = NRe * NIm;
 
     dim3 B(16, 16, 1);

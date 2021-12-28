@@ -55,7 +55,7 @@ For example:
 ```
 This will output a png in [fractals](fractals)
 
-## Step Parameter
+## Creating mp4s of the Evolution
 
 If step is set to true, the above command will output 50 pngs, one for each step of the iteration.
 
@@ -65,16 +65,22 @@ You can then stitch them into an mp4 (and clean up all the pngs) using:
 make movie name=testName
 ```
 
-i.e., if you ran:
-
-```bash
-./bin/newton order7 step=true
-```
+*Note*: This will keep all the default parameters (NRe, ReSpacing, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with:
 
 Then stitch into a movie with
 
 ```bash
-make movie name=order7
+make stitchMovie name=testName
+```
+
+For example:
+
+```bash
+# output pngs for each step
+./bin/newton order12 step=true NRe=1000
+
+# stitch into a movie
+make stitchMovie name=order12
 ```
 
 This will output [order7.mp4](fractals/order7.mp4) in [fractals](fractals).
