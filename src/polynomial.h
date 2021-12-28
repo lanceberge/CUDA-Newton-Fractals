@@ -1,6 +1,5 @@
 #pragma once
 
-/* #include "cuComplex.h" */
 #include "complex.h"
 
 // a struct representing polynomials - i.e. the polynomial Ax^3 + Cx + D
@@ -8,6 +7,8 @@
 struct Polynomial
 {
     int order;
+
+    // host and device coefficients arrays
     dfloat *h_coeffs;
     dfloat *c_coeffs;
 
@@ -23,6 +24,7 @@ struct Polynomial
     // host version of P(z)
     __host__ Complex h_Pz(const Complex& z) const;
 
+    // free memory
     __host__ __device__ ~Polynomial();
 };
 
