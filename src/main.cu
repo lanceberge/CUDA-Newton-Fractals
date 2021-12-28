@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 
             val = strtok(NULL, " ");
             if (val != NULL)
-                order = atoi(val);
+                max = atoi(val);
 
             val = strtok(NULL, " ");
             if (val != NULL)
@@ -209,6 +209,7 @@ int main(int argc, char **argv)
 
     // find the solutions - unique values in zVals
     Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
+
     int nSolns = findSolns(P, h_solns, h_zVals, order, N);
 
     free(h_zVals);
