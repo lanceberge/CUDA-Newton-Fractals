@@ -32,14 +32,14 @@ Example use:
 make
 
 # run code
-./bin/newton <testName> [xPixels=500] [yPixels=500] [xRange=3] [yRange=3] [L1=false] [step=false]
+./bin/newton <testName> [xPixels=?] [yPixels=?] [xRange=?] [yRange=?] [L1={true,false}] [step={true,false}]
 
 ## Or run my provided examples:
 make runOrder7
 make runOrder12
-```
 
-*Note*: The values after = can be set by you, 500, 3, false, etc. are just the defaults
+# These will output testName.png in fractals/
+```
 
 `testName` can be one of:
 
@@ -51,21 +51,20 @@ make runOrder12
 
 *Note*: If you use order7 or order12, xRange and yRange will already be set
 
-| Parameter | Description                                                |
-|--         | --                                                         |
-| xPixels   | Number of horizontal pixels                                |
-| yPixels   | Number of vertical pixels                                  |
-| xRange    | if 4, x values are between -4 and 4                        |
-| yRange    | same as above but for the y values                         |
-| L1        | set to true if you want to use L1 norm to measure distance |
-| step      | set to true to output a png for each step                  |
+| Parameter | Description                                                | Default |
+|--         | --                                                         |--       |
+| xPixels   | Number of horizontal pixels                                | 1000    |
+| yPixels   | Number of vertical pixels                                  | 1000    |
+| xRange    | if 4, x values are between -4 and 4                        | 1.5     |
+| yRange    | same as above but for the y values                         | 1.5     |
+| L1        | set to true if you want to use L1 norm to measure distance | false   |
+| step      | set to true to output a png for each step                  | false   |
 
 For example:
 
 ```bash
 ./bin/newton order7 L1=true step=false
 ```
-This will output a png in [fractals](fractals)
 
 ## Creating mp4s of the Evolution
 
@@ -95,7 +94,7 @@ This will output [order12.mp4](fractals/order12.mp4) in [fractals](fractals).
 You can also input your own polynomial, which will occur if `testName` isn't order7 or order12. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
 ```bash
-$ ./bin/newton randomOrder50 xRange=1.5 yRange=1.5 xPixels=2000 yPixels=2000
+$ ./bin/newton randomOrder50 xPixels=2000 yPixels=2000 # higher resolution than defaults
 Enter up to 99 characters of the roots of your polynomial separated by spaces:
 ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1
 Or, enter 'random' to get a random polynomial
@@ -110,8 +109,6 @@ Seed  - seed the random polynomial (seeds drand48)
 This produces the fractal [fractals/randomOrder50.png](fractals/randomOrder50.png):
 
 ![randomOrder50.png](fractals/randomOrder50.png)
-
-*Note*: The default xRange and yRange is 3. I set them to 1.5 for this fractal, as the default was too zoomed out. In other words, decreasing them zoomed everything in.
 
 ## Dependencies
 
