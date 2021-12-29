@@ -33,6 +33,7 @@ int main(int argc, char **argv)
     Complex *c_zVals;
 
     // will be initialized below based on which test we use
+    // the default settings
     dfloat xRange = 1.5;
     dfloat yRange = 1.5;
     int norm      = 2;
