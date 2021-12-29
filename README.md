@@ -60,12 +60,6 @@ make runOrder12
 | L1        | set to true if you want to use L1 norm to measure distance | false   |
 | step      | set to true to output a png for each step                  | false   |
 
-For example:
-
-```bash
-./bin/newton order7 L1=true step=false
-```
-
 ## Creating mp4s of the Evolution
 
 You can also creat mp4s of the evolution of the fractals using:
