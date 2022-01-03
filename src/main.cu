@@ -74,6 +74,16 @@ int main(int argc, char **argv)
 
             else if (strcmp(token, "yRange") == 0)
                 yRange = atoi(val);
+
+            else if (strcmp(token, "xySpacing") == 0) {
+                xSpacing = atoi(val);
+                ySpacing = atoi(val);
+            }
+
+            else if (strcmp(token, "xyRange") == 0) {
+                xRange = atoi(val);
+                yRange = atoi(val);
+            }
         }
     }
 
@@ -107,6 +117,11 @@ int main(int argc, char **argv)
             xPixels = 500;
             yPixels = 500;
         }
+
+        else {
+            xPixels = 1000;
+            yPixels = 1000;
+        }
     }
 
     // order 12
@@ -124,6 +139,11 @@ int main(int argc, char **argv)
         if (step) {
             xPixels = 500;
             yPixels = 500;
+        }
+
+        else {
+            xPixels = 2000;
+            yPixels = 2000;
         }
     }
 
