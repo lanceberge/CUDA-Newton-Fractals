@@ -31,14 +31,12 @@ Example use:
 # compile
 make
 
-# run code
+# run code - this will output testName.png in fractals/
 ./bin/newton <testName> [xPixels=?] [yPixels=?] [xRange=?] [yRange=?] [L1={true,false}] [step={true,false}]
 
 ## Or run my provided examples:
 make runOrder7
 make runOrder12
-
-# These will output testName.png in fractals/
 ```
 
 `testName` can be one of:
