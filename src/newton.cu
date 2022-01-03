@@ -11,8 +11,7 @@ __global__ void fillArrays(dfloat ReSpacing, dfloat ImSpacing, Complex *zValsIni
     dfloat dx = ReSpacing*2 / NRe;
     dfloat dy = ImSpacing*2 / NIm;
 
-    if (x < NRe && y < NIm)
-    {
+    if (x < NRe && y < NIm) {
         // Real value here - evenly spaced from -ReSpacing to Respacing
         // with NRe elements, same for Im
         dfloat Re = x*dx - ReSpacing;
@@ -34,13 +33,11 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
     int x = threadIdx.x + blockIdx.x*blockDim.x;
     int y = threadIdx.y + blockIdx.y*blockDim.y;
 
-    if (x < NRe && y < NIm)
-    {
+    if (x < NRe && y < NIm) {
         Complex z = zVals[x + NRe*y];
 
         // perform Nit iterations of z_i+1 = z_i - P(z_i) / P'(z_i)
-        for (int i = 0; i < Nit; ++i)
-        {
+        for (int i = 0; i < Nit; ++i) {
             // find P(z) and P'(z)
             Complex P_z      = P.c_Pz(z);
             Complex P_primeZ = Pprime.c_Pz(z);
@@ -74,24 +71,23 @@ int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
         Complex P_z = P.h_Pz(curr);
 
         // if this value isn't a root; if P(z)'s Re or Im value's aren't 0
-        if (!(fabs(P_z.Re) < 1e-10 && fabs(P_z.Im) < 1e-10))
+        if (P_z != Complex(0, 0)) {
+            printf(" != %f, %f\n", P_z.Re, P_z.Im);
             continue;
+        }
 
         // if the current value isn't already in solns, then add it to solns
-        for (int j = 0; j < nFound; ++j)
-        {
+        for (int j = 0; j < nFound; ++j) {
             Complex currFound = solns[j];
-            if (fabs(curr.Re - currFound.Re) < 1e-10 &&
-                fabs(curr.Im - currFound.Im) < 1e-10) {
 
+            if (curr == currFound) {
                 alreadyFound = true;
                 break;
             }
         }
 
         // if this solution isn't already in solutions, add it
-        if (!alreadyFound)
-        {
+        if (!alreadyFound) {
             solns[nFound] = curr;
             ++nFound;
         }
@@ -107,8 +103,7 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
     int x = threadIdx.x + blockIdx.x * blockDim.x;
     int y = threadIdx.y + blockIdx.y * blockDim.y;
 
-    if (x < NRe && y < NIm)
-    {
+    if (x < NRe && y < NIm) {
         Complex z = zVals[x + NRe*y];
         dfloat dist;
 
@@ -120,8 +115,7 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
 
         int idx = 0;
 
-        for (int i = 1; i < nSolns; ++i)
-        {
+        for (int i = 1; i < nSolns; ++i) {
             dfloat currDist;
 
             if (norm == 1)
@@ -130,8 +124,7 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
             else
                 currDist = L2Distance(solns[i], z);
 
-            if (currDist < dist)
-            {
+            if (currDist < dist) {
                 dist = currDist;
                 idx = i;
             }
