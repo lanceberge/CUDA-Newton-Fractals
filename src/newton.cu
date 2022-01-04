@@ -18,11 +18,8 @@ __global__ void fillArrays(dfloat ReSpacing, dfloat ImSpacing, Complex *zValsIni
         dfloat Im = y*dy - ImSpacing;
 
         // fill zVals arrays in row-major format
-        Complex zValInitial = {Re, Im};
-        Complex zVal        = {Re, Im};
-
-        zValsInitial[x + NRe*y] = zValInitial;
-        zVals       [x + NRe*y] = zVal;
+        zValsInitial[x + NRe*y] = Complex(Re, Im);
+        zVals       [x + NRe*y] = Complex(Re, Im);
     }
 }
 
