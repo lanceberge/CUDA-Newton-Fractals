@@ -71,10 +71,8 @@ int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
         Complex P_z = P.h_Pz(curr);
 
         // if this value isn't a root; if P(z)'s Re or Im value's aren't 0
-        if (P_z != Complex(0, 0)) {
-            printf(" != %f, %f\n", P_z.Re, P_z.Im);
+        if (P_z != Complex(0, 0))
             continue;
-        }
 
         // if the current value isn't already in solns, then add it to solns
         for (int j = 0; j < nFound; ++j) {
