@@ -57,8 +57,7 @@ int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
     int nFound = 0;
 
     // iterate over zVals
-    for (int i = 0; i < nVals && nFound != nSolns; ++i)
-    {
+    for (int i = 0; i < nVals && nFound != nSolns; ++i) {
         bool alreadyFound = false;
 
         Complex curr = zVals[i];
