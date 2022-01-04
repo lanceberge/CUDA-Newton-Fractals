@@ -83,7 +83,7 @@ This will output [order12.mp4](fractals/order12.mp4) in [fractals](fractals).
 You can also input your own polynomial, which will occur if `testName` isn't order7 or order12. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
 ```bash
-$ ./bin/newton randomOrder50 xyPixels=2000 # higher resolution than defaults
+$ ./bin/newton randomOrder20 xyPixels=2000 # higher resolution than defaults
 Enter up to 99 characters of the roots of your polynomial separated by spaces:
 ex. 5 4 3 2 1 to correspond to 5x^4 + 4x^3 + 3x^2 + 2x + 1
 Or, enter 'random' to get a random polynomial
