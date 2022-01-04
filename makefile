@@ -22,9 +22,10 @@ runOrder12:
 	./bin/newton order12
 
 name = order7
+args = ""
 
 movie:
-	./bin/newton ${name} step=true
+	./bin/newton ${name} ${args} step=true
 	make stitchMovie
 
 stitchMovie:
