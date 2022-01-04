@@ -17,7 +17,6 @@ runAll:
 runOrder7:
 	./bin/newton order7
 
-
 runOrder12:
 	./bin/newton order12
 
