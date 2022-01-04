@@ -65,20 +65,15 @@ make runOrder12
 You can also creat mp4s of the evolution of the fractals using:
 
 ```bash
-make movie name=testName
-```
+make movie name=testName args="xyPixels=2000 xyRange=2"
 
-*Note*: This will keep all the default parameters (xPixels, xRange, etc.). If you want to change those, first run the executable with step=true, then stitch into a movie with `make stitchMovie`, for example:
+## Or
 
-```bash
 # output pngs for each step
 ./bin/newton order12 step=true
 
-# stitch into a movie
+# then stitch into a movie
 make stitchMovie name=order12
-
-## Or using default parameters
-make movie name=order12
 ```
 
 This will output [order12.mp4](fractals/order12.mp4) in [fractals](fractals).
