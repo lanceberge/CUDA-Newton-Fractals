@@ -37,11 +37,11 @@ __device__ Complex Complex::operator/(const Complex& z2)
     return Complex(Re, Im);
 }
 
-// return if the Re and Im of this and z2 are < 1e-10
+// return if the Re and Im of this and z2 are < 1e-6
 __host__ bool Complex::operator==(const Complex& z2)
 {
-    return fabs(Re - z2.Re) < 1e-10 &&
-                fabs(Im - z2.Im) < 1e-10;
+    return fabs(Re - z2.Re) < 1e-6 &&
+                fabs(Im - z2.Im) < 1e-6;
 }
 
 __host__ bool Complex::operator!=(const Complex& z2)
