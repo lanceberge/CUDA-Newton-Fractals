@@ -70,7 +70,7 @@ make movie name=testName args="xyPixels=2000 xyRange=2"
 ## Or
 
 # output pngs for each step
-./bin/newton order12 step=true
+./bin/newton order12 step=true xyPixels=2000 xyRange=2
 
 # then stitch into a movie
 make stitchMovie name=order12
