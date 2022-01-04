@@ -19,8 +19,10 @@ int main(int argc, char **argv)
                "           options will be ignored\n");
         printf("xPixels  - Number of horizontal pixels\n");
         printf("yPixels  - Number of vertical pixels\n");
+        printf("xyPixels - Set both x and y Pixels\n");
         printf("xRange   - if 4, then the real values will be spaced from -4 to 4\n");
         printf("yRange   - same as xRange but for the imaginary values\n");
+        printf("xyRange  - set both x and y Range\n");
         printf("L1       - true if you want to use L1 norm to quantify distance\n");
         printf("step     - true if you want to output a png for each step\n");
         exit(-1);
@@ -70,19 +72,19 @@ int main(int argc, char **argv)
                 yPixels = atoi(val);
 
             else if (strcmp(token, "xRange") == 0)
-                xRange = atoi(val);
+                xRange = atof(val);
 
             else if (strcmp(token, "yRange") == 0)
-                yRange = atoi(val);
+                yRange = atof(val);
 
-            else if (strcmp(token, "xySpacing") == 0) {
-                xSpacing = atoi(val);
-                ySpacing = atoi(val);
+            else if (strcmp(token, "xyPixels") == 0) {
+                xPixels = atoi(val);
+                yPixels = atoi(val);
             }
 
             else if (strcmp(token, "xyRange") == 0) {
-                xRange = atoi(val);
-                yRange = atoi(val);
+                xRange = atof(val);
+                yRange = atof(val);
             }
         }
     }

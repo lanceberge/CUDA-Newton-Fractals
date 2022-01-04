@@ -97,12 +97,12 @@ Enter [order] [max] [seed]
 Order - the order of the polynomial
 Max   - the max value of the coefficients (if 10, then all coefficients will be from -10 to 10
 Seed  - seed the random polynomial (seeds drand48)
-50 30 # an order 50 polynomial with roots between -30 and 30
+20 30 # an order 20 polynomial with roots between -30 and 30
 ```
 
-This produces the fractal [fractals/randomOrder50.png](fractals/randomOrder50.png):
+This produces the fractal [fractals/randomOrder20.png](fractals/randomOrder20.png):
 
-![randomOrder50.png](fractals/randomOrder50.png)
+![randomOrder20.png](fractals/randomOrder20.png)
 
 ## Dependencies
 
