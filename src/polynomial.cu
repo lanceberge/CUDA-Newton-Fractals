@@ -1,6 +1,8 @@
 #include "polynomial.h"
 #include "complex.h"
 
+// pre: coeffs is dynamically allocated with new
+// post: c_coeffs is allocated with cudaMalloc
 Polynomial::Polynomial(int order, dfloat *coeffs)
 {
     this->order = order;
