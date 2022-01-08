@@ -37,20 +37,20 @@ __device__ Complex Complex::operator/(const Complex& z2)
     return Complex(Re, Im);
 }
 
-// return if the Re and Im of this and z2 are < 1e-6
-__host__ bool Complex::operator==(const Complex& z2)
+// return if the Re and Im of this and z2 are < 1e-3
+__host__ __device__ bool Complex::operator==(const Complex& z2)
 {
-    return fabs(Re - z2.Re) < 1e-6 &&
-                fabs(Im - z2.Im) < 1e-6;
+    return fabs(Re - z2.Re) < 1e-3 &&
+                fabs(Im - z2.Im) < 1e-3;
 }
 
-__host__ bool Complex::operator!=(const Complex& z2)
+__host__ __device__ bool Complex::operator!=(const Complex& z2)
 {
     return !(*this == z2);
 }
 
 // print a complex number
-void Complex::printComplex(const Complex& z)
+__host__ __device__ void Complex::printComplex()
 {
-    printf("Re: %f, Im: %f\n", z.Re, z.Im);
+    printf("Re: %f, Im: %f\n", Re, Im);
 }
