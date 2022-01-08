@@ -10,6 +10,9 @@ newton:
 debug:
 	nvcc ${CPPFILES} ${CPPFLAGS} -g -G -o ${OUT}
 
+WIP:
+	nvcc ${CPPFILES} ${CPPFLAGS} -g -G -DdeviceFindSolns -o ${OUT}
+
 setup:
 	if [ ! -d "./bin" ]; then \
 	mkdir bin; \

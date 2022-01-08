@@ -90,14 +90,60 @@ int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
     return nFound;
 }
 
+__global__ void deviceFindSolns(Polynomial P, Complex *solns, Complex *zVals,
+                                int nVals)
+{
+    int x = threadIdx.x + blockIdx.x * blockDim.x;
+
+    // if the index is valid and the value there is a solution
+    if (x < nVals) {
+        Complex zVal = zVals[x];
+
+        // if this value isn't a root
+        if (P.c_Pz(zVal) != Complex(0, 0)) {
+            return;
+        }
+
+        // convert our real and imaginary components to integers - intentionally losing
+        // precision to make sure if a solution is approximately converged, it doesn't hash
+        // to a different spot (e.g. we want 0.85 and 0.850001 to hash to the same spot)
+        unsigned int Re = (int)(zVal.Re * 1000);
+        unsigned int Im = (int)(zVal.Im * 1000);
+
+        // hash these values to an index - this method is a good way to hash
+        // 2d values according to:
+        // https://stackoverflow.com/questions/2634690/good-hash-function-for-a-2d-index
+        unsigned int idx = ((53 + hash(Re)) * 53 + hash(Im));
+
+
+        // linear probe and insert where possible
+        for (int i = 0; i <= P.order; ++i) {
+            unsigned int probeIdx = (idx + i) % P.order;
+
+            // if this value is already in the table
+            __syncthreads();
+            if (solns[probeIdx] == zVal || solns[idx % P.order] == zVal) {
+                return;
+            }
+
+            __syncthreads();
+            if (solns[probeIdx] == Complex(0, 0)) {
+                solns[probeIdx] = zVal;
+                return;
+            }
+        }
+    }
+}
+
 // for each solution in zVals, find the solution it's closest to based on L1 distance
 __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
-                                Complex *solns, int nSolns, int norm)
+                                Complex *solns, Polynomial P, int norm)
 {
     int x = threadIdx.x + blockIdx.x * blockDim.x;
     int y = threadIdx.y + blockIdx.y * blockDim.y;
 
     if (x < NRe && y < NIm) {
+
         Complex z = zVals[x + NRe*y];
         dfloat dist;
 
@@ -109,19 +155,30 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
 
         int idx = 0;
 
-        for (int i = 1; i < nSolns; ++i) {
-            dfloat currDist;
+        for (int i = 1; i < P.order; ++i) {
+            Complex root(0, 0);
 
-            if (norm == 1)
-                currDist = L1Distance(solns[i], z);
+            // the default value written into solns by cudaMalloc is the
+            // 0,0 complex, which may or may not actually be a solution
+            // thus if the value in solns is 0,0, we verify that it is a root
+#ifdef deviceFindSolns // TODO
+            if (solns[i] == root && P.c_Pz(solns[i]) == root) {
+#endif
+                dfloat currDist;
 
-            else
-                currDist = L2Distance(solns[i], z);
+                if (norm == 1)
+                    currDist = L1Distance(solns[i], z);
 
-            if (currDist < dist) {
-                dist = currDist;
-                idx = i;
+                else
+                    currDist = L2Distance(solns[i], z);
+
+                if (currDist < dist) {
+                    dist = currDist;
+                    idx = i;
+                }
+#ifdef deviceFindSolns
             }
+#endif
         }
 
         closest[x + NRe*y] = idx;
@@ -144,4 +201,13 @@ __device__ dfloat L1Distance(const Complex& z1, const Complex& z2)
     dfloat ImDiff = z1.Im - z2.Im;
 
     return fabs(ReDiff) + fabs(ImDiff);
+}
+
+// from: https://stackoverflow.com/questions/664014/what-
+// integer-hash-function-are-good-that-accepts-an-integer-hash-key
+__device__ unsigned int hash(unsigned int x) {
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
+    return x;
 }
