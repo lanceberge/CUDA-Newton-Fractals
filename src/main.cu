@@ -227,26 +227,13 @@ int main(int argc, char **argv)
     // perform 500 steps of the iteration and copy result back to host
     newtonIterate<<<G, B>>>(c_zVals, P, Pprime, xPixels, yPixels, 500);
 
-#ifdef deviceFindSolns // WIP - device version of findSolns
+#ifndef hostSolns
     int B2 = 256;
     int G2 = (N+255)/B2;
 
     cudaMalloc(&c_solns, order*sizeof(Complex));
 
     deviceFindSolns<<<G2, B2>>>(P, c_solns, c_zVals, N);
-
-    { // TODO delete (for debugging)
-
-    Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
-    cudaMemcpy(h_solns, c_solns, order*sizeof(Complex), cudaMemcpyDeviceToHost);
-
-    printf("Solns:\n");
-    for (int i = 0; i < P.order; ++i) {
-        printf("Re: %f, Im: %f\n", h_solns[i].Re, h_solns[i].Im);
-    }
-
-    free(h_solns);
-    }
 #else
     // copy result to host
     cudaMemcpy(h_zVals, c_zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
@@ -260,6 +247,13 @@ int main(int argc, char **argv)
     // copy h_solns to device for use in findClosestSoln
     cudaMalloc(&c_solns, nSolns*sizeof(Complex));
     cudaMemcpy(c_solns, h_solns, nSolns*sizeof(Complex), cudaMemcpyHostToDevice);
+
+    { // debugging print solutions
+    printf("Solns:\n");
+    for (int i = 0; i < P.order; ++i) {
+        printf("Re: %f, Im: %f\n", h_solns[i].Re, h_solns[i].Im);
+    }
+    }
 
     free(h_solns);
 #endif
