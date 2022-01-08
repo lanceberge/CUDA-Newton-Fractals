@@ -1,9 +1,14 @@
+CPPFLAGS=-O3 -lpng -rdc=true
+CPPFILES=src/main.cu src/newton.cu src/complex.cu src/polynomial.cu src/png_util.c
+OUT=bin/newton
+
 newton:
 	make setup
-	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu src/png_util.c -O3 -lpng -o bin/newton -rdc=true
+	nvcc ${CPPFILES} ${CPPFLAGS} -o ${OUT}
+
 
 debug:
-	nvcc src/main.cu src/newton.cu src/complex.cu src/polynomial.cu src/png_util.c -lpng -g -G -o bin/newton -rdc=true
+	nvcc ${CPPFILES} ${CPPFLAGS} -g -G -o ${OUT}
 
 setup:
 	if [ ! -d "./bin" ]; then \
