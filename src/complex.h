@@ -21,10 +21,10 @@ struct Complex
     // divide two complex numbers
     __device__ Complex operator/(const Complex& z2);
 
-    __host__ bool operator==(const Complex& z2);
+    __host__ __device__ bool operator==(const Complex& z2);
 
-    __host__ bool operator!=(const Complex& z2);
+    __host__ __device__ bool operator!=(const Complex& z2);
 
     // print to stdout
-    void printComplex(const Complex& z);
+    __host__ __device__ void printComplex();
 };
