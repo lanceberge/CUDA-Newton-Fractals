@@ -49,6 +49,11 @@ __host__ __device__ bool Complex::operator!=(const Complex& z2)
     return !(*this == z2);
 }
 
+__host__ __device__ bool Complex::isRoot()
+{
+    return *this == Complex(0, 0);
+}
+
 // print a complex number
 __host__ __device__ void Complex::printComplex()
 {

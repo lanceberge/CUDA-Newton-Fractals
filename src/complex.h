@@ -25,6 +25,8 @@ struct Complex
 
     __host__ __device__ bool operator!=(const Complex& z2);
 
+    __host__ __device__ bool isRoot();
+
     // print to stdout
     __host__ __device__ void printComplex();
 };
