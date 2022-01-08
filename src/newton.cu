@@ -67,7 +67,7 @@ int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
         Complex P_z = P.h_Pz(curr);
 
         // if this value isn't a root; if P(z)'s Re or Im value's aren't 0
-        if (P_z != Complex(0, 0))
+        if (!P_z.isRoot())
             continue;
 
         // if the current value isn't already in solns, then add it to solns
@@ -100,35 +100,35 @@ __global__ void deviceFindSolns(Polynomial P, Complex *solns, Complex *zVals,
         Complex zVal = zVals[x];
 
         // if this value isn't a root
-        if (P.c_Pz(zVal) != Complex(0, 0)) {
+        if (!P.c_Pz(zVal).isRoot()) {
             return;
         }
 
         // convert our real and imaginary components to integers - intentionally losing
         // precision to make sure if a solution is approximately converged, it doesn't hash
         // to a different spot (e.g. we want 0.85 and 0.850001 to hash to the same spot)
-        unsigned int Re = (int)(zVal.Re * 1000);
-        unsigned int Im = (int)(zVal.Im * 1000);
+        unsigned int Re = (int)(zVal.Re * 1000) + 1000;
+        unsigned int Im = (int)(zVal.Im * 1000) + 1000;
 
         // hash these values to an index - this method is a good way to hash
         // 2d values according to:
         // https://stackoverflow.com/questions/2634690/good-hash-function-for-a-2d-index
         unsigned int idx = ((53 + hash(Re)) * 53 + hash(Im));
 
-
         // linear probe and insert where possible
-        for (int i = 0; i <= P.order; ++i) {
+        for (int i = 0; i < P.order; ++i) {
             unsigned int probeIdx = (idx + i) % P.order;
 
-            // if this value is already in the table
-            __syncthreads();
-            if (solns[probeIdx] == zVal || solns[idx % P.order] == zVal) {
-                return;
-            }
-
-            __syncthreads();
-            if (solns[probeIdx] == Complex(0, 0)) {
+            // bug: there is a data race resulting from this conditional.
+            // in some cases, a value will be inserted into the table twice,
+            // meaning this condition evaluates true for a certain value on
+            // one thread, then false for the same value on another thread.
+            // it will then probe and insert the value that had already been inserted.
+            // this leads to losing one of our found solutions for every duplicated
+            // value (not a huge issue)
+            if (solns[probeIdx].isRoot() || solns[probeIdx] == zVal) {
                 solns[probeIdx] = zVal;
+                __threadfence();
                 return;
             }
         }
@@ -156,14 +156,11 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
         int idx = 0;
 
         for (int i = 1; i < P.order; ++i) {
-            Complex root(0, 0);
-
             // the default value written into solns by cudaMalloc is the
             // 0,0 complex, which may or may not actually be a solution
             // thus if the value in solns is 0,0, we verify that it is a root
-#ifdef deviceFindSolns // TODO
-            if (solns[i] == root && P.c_Pz(solns[i]) == root) {
-#endif
+            // if this value isn't 0,0 or 0,0 is a solution
+            if (!solns[i].isRoot() || P.c_Pz(solns[i]).isRoot()) {
                 dfloat currDist;
 
                 if (norm == 1)
@@ -176,9 +173,7 @@ __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
                     dist = currDist;
                     idx = i;
                 }
-#ifdef deviceFindSolns
             }
-#endif
         }
 
         closest[x + NRe*y] = idx;
