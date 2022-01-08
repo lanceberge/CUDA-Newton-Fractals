@@ -1,37 +1,36 @@
 CPPFLAGS=-O3 -lpng -rdc=true
 CPPFILES=src/main.cu src/newton.cu src/complex.cu src/polynomial.cu src/png_util.c
-OUT=bin/newton
+OUT     =bin/newton
 
-newton:
+newton: ${CPPFILES}
 	make setup
 	nvcc ${CPPFILES} ${CPPFLAGS} -o ${OUT}
 
-
-debug:
+debug: ${CPPFILES}
 	nvcc ${CPPFILES} ${CPPFLAGS} -g -G -o ${OUT}
 
-WIP:
-	nvcc ${CPPFILES} ${CPPFLAGS} -g -G -DdeviceFindSolns -o ${OUT}
+test: ${CPPFILES}
+	nvcc ${CPPFILES} ${CPPFLAGS} -g -G -DhostSolns -o ${OUT}
 
 setup:
 	if [ ! -d "./bin" ]; then \
 	mkdir bin; \
 	fi
 
-runAll:
-	make runOrder7
-	make runOrder12
-
-runOrder7:
+runOrder7: ${OUT}
 	./bin/newton order7
 
-runOrder12:
+runOrder12: ${OUT}
 	./bin/newton order12
+
+runAll: ${OUT}
+	make runOrder7
+	make runOrder12
 
 name = order7
 args = ""
 
-movie:
+movie: ${OUT}
 	./bin/newton ${name} ${args} step=true
 	make stitchMovie
 
