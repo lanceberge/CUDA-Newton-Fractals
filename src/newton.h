@@ -10,12 +10,12 @@ __global__ void fillArrays(dfloat ReSpacing, dfloat ImSpacing, Complex *zValsIni
 __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
                                   int NRe, int NIm, int Nit);
 
+__global__ void deviceFindSolns(Polynomial P, Complex *solns, Complex *zVals,
+                                    int nVals);
+
 // find all of the unique values in zVals
 int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
                   int nSolns, int nVals);
-
-__global__ void deviceFindSolns(Polynomial P, Complex *solns, Complex *zVals,
-                                    int nVals);
 
 // for each val in zVals, find the solution in solns it's closest to
 __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
