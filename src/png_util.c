@@ -45,7 +45,7 @@ void writeImage(const char *filename, int width, int height, int *buffer)
 
             // if val is > 11, use random colors
             if (val < 12) {
-                // convert into RGB triplets by multiplying each by 256
+                // convert into RGB triplets by multiplying each by 255
                 ptr[0] = (int)(r[val]*255);
                 ptr[1] = (int)(g[val]*255);
                 ptr[2] = (int)(b[val]*255);
