@@ -227,26 +227,46 @@ int main(int argc, char **argv)
     // perform 500 steps of the iteration and copy result back to host
     newtonIterate<<<G, B>>>(c_zVals, P, Pprime, xPixels, yPixels, 500);
 
+#ifdef deviceFindSolns // WIP - device version of findSolns
+    int B2 = 256;
+    int G2 = (N+255)/B2;
+
+    cudaMalloc(&c_solns, order*sizeof(Complex));
+
+    deviceFindSolns<<<G2, B2>>>(P, c_solns, c_zVals, N);
+
+    { // TODO delete (for debugging)
+
+    Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
+    cudaMemcpy(h_solns, c_solns, order*sizeof(Complex), cudaMemcpyDeviceToHost);
+
+    printf("Solns:\n");
+    for (int i = 0; i < P.order; ++i) {
+        printf("Re: %f, Im: %f\n", h_solns[i].Re, h_solns[i].Im);
+    }
+
+    free(h_solns);
+    }
+#else
     // copy result to host
     cudaMemcpy(h_zVals, c_zVals, N*sizeof(Complex), cudaMemcpyDeviceToHost);
 
     // find the solutions - unique values in zVals
     Complex *h_solns = (Complex *)malloc(order*sizeof(Complex));
-
     int nSolns = findSolns(P, h_solns, h_zVals, order, N);
 
     free(h_zVals);
-
-    // find closest solutions to each point in zVals
-    cudaMalloc(&c_closest, N * sizeof(int));
 
     // copy h_solns to device for use in findClosestSoln
     cudaMalloc(&c_solns, nSolns*sizeof(Complex));
     cudaMemcpy(c_solns, h_solns, nSolns*sizeof(Complex), cudaMemcpyHostToDevice);
 
     free(h_solns);
+#endif
 
     // array for closest solutions
+    cudaMalloc(&c_closest, N*sizeof(int));
+
     int *h_closest;
     h_closest = new int[N];
 
@@ -257,7 +277,7 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < 50; ++i) {
             // find the closest solution to each value in zVals and store it in closest
-            findClosestSoln<<<G, B>>>(c_closest, c_zVals, xPixels, yPixels, c_solns, nSolns, norm);
+            findClosestSoln<<<G, B>>>(c_closest, c_zVals, xPixels, yPixels, c_solns, P, norm);
 
             // copy results back to host
             cudaMemcpy(h_closest, c_closest, N*sizeof(int), cudaMemcpyDeviceToHost);
@@ -274,7 +294,7 @@ int main(int argc, char **argv)
     // just output the one image
     else {
         // find the closest solution to each value in zVals and store it in closest
-        findClosestSoln<<<G, B>>>(c_closest, c_zVals, xPixels, yPixels, c_solns, nSolns, norm);
+        findClosestSoln<<<G, B>>>(c_closest, c_zVals, xPixels, yPixels, c_solns, P, norm);
 
         // copy results back to host
         cudaMemcpy(h_closest, c_closest, N*sizeof(int), cudaMemcpyDeviceToHost);

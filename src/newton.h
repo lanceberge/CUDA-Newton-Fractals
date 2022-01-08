@@ -14,12 +14,17 @@ __global__ void newtonIterate(Complex *zVals, Polynomial P, Polynomial Pprime,
 int findSolns(const Polynomial& P, Complex *solns, Complex *zVals,
                   int nSolns, int nVals);
 
+__global__ void deviceFindSolns(Polynomial P, Complex *solns, Complex *zVals,
+                                    int nVals);
+
 // for each val in zVals, find the solution in solns it's closest to
 __global__ void findClosestSoln(int *closest, Complex *zVals, int NRe, int NIm,
-                                   Complex *solns, int nSolns, int norm);
+                                    Complex *solns, Polynomial P, int norm);
 
 // L2 distance between two points
 __device__ dfloat L2Distance(const Complex& z1, const Complex& z2);
 
 // L1 distance between two points
 __device__ dfloat L1Distance(const Complex& z1, const Complex& z2);
+
+__device__ unsigned int hash(unsigned int x);
