@@ -4,7 +4,7 @@ Visualizing the convergence of Newton's iteration using CUDA to asynchronously p
 
 Newton's Method is an iterative technique to find the roots of a polynomial. It begins with an initial guess of a root, then performs the iteration:
 
-[iteration](fractals/iteration.png)
+![iteration](fractals/iteration.svg)
 
 until the iteration converges to a root.
 
