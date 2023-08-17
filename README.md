@@ -1,23 +1,19 @@
 # CUDA Newton Fractals
 
-Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
-
 Newton's Method is an iterative technique to find the roots of a polynomial. It begins with an initial guess of a root, then performs the iteration:
 
 ![iteration](fractals/iteration.svg)
 
 until it converges to a root.
 
-This project performs the iteration on initial guesses across the complex plane asynchronously using GPU hardware.
-Then, after these points have converged to the roots of the polynomial, they are color-coded based on which root they converged to.
-This creates a famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal)
+This project performs the iteration on initial guesses all across the complex plane. The iteration is performed asynchronously on each initial guess using CUDA.
+Then, after these guesses have converged to the roots of the polynomial, they are color-coded based on which root they converged to.
+This creates the famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
 
 For example:
 
 [fractals/order12](fractals/order12.png):
 ![order12](fractals/order12.png)
-
-A CUDA kernel in [src/newton.cu](src/newton.cu) performs the iteration asynchronously for each initial guess.
 
 ## Running the Code
 
