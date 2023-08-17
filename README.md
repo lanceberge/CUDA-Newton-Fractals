@@ -1,20 +1,8 @@
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
-**Table of Contents**
-
-- [CUDA Newton Fractals](#cuda-newton-fractals)
-    - [Running the Code](#running-the-code)
-    - [Creating mp4s of the Evolution](#creating-mp4s-of-the-evolution)
-    - [Producing a Custom Fractal](#producing-a-custom-fractal)
-    - [Dependencies](#dependencies)
-
-<!-- markdown-toc end -->
 # CUDA Newton Fractals
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
 
-***Note***: This project was my final project for CMDA 4984: SS Scientific Computing at Scale. I've been working on the project since then, but what I submitted for that project is in the `cmda4984` branch.
-
-Newton's method is an iteration that (usually) converges to the roots of a polynomial. In this project, the iteration is performed on initial guesses evenly spaced all over the complex (Real and Imaginary) plane. Then, the roots those initial guesses converge to are color-coded based on which root they converged to. For example, initial guesses that converge to the first root we find may be yellow, guesses that converge to be closest to second root we find may be red, and so on. These are known as [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
+Newton's Method is an iteration which takes a point on the complex plane and a polynomial then converges to a root of that polynomial. This project performs the iteration on points across the complex plane asynchronously using GPU hardware. Then, after these points have converged to the roots of the polynomial, they are color-coded based on which root they converged to. This creates a famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
 
 For example:
 
