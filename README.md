@@ -2,7 +2,15 @@
 
 Visualizing the convergence of Newton's iteration using CUDA to asynchronously perform the iteration
 
-Newton's Method is an iteration which takes a point on the complex plane and a polynomial then converges to a root of that polynomial. This project performs the iteration on points across the complex plane asynchronously using GPU hardware. Then, after these points have converged to the roots of the polynomial, they are color-coded based on which root they converged to. This creates a famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
+Newton's Method is an iterative technique to find the roots of a polynomial. It begins with an initial guess of a root, then performs the iteration:
+
+[iteration](fractals/iteration.svg)
+
+until the iteration converges to a root.
+
+This project performs the iteration on initial guesses across the complex plane, performing the iteration on each initial guess asynchronously using GPU hardware.
+Then, after these points have converged to the roots of the polynomial, they are color-coded based on which root they converged to.
+This creates a famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal)
 
 For example:
 
