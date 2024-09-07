@@ -1,5 +1,8 @@
 # CUDA Newton Fractals
 
+[fractals/order12](fractals/order12.png):
+![order12](fractals/order12.png)
+
 Newton's Method is an iterative technique to find the roots of a polynomial. It begins with an initial guess of a root, then performs the iteration:
 
 ![iteration](fractals/iteration.svg)
@@ -11,9 +14,6 @@ Then, after these guesses have converged to the roots of the polynomial, they ar
 This creates the famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
 
 For example:
-
-[fractals/order12](fractals/order12.png):
-![order12](fractals/order12.png)
 
 This project also enables you to save snapshots of the evolution at each iteration, then to stitch them into a video:
 
@@ -95,10 +95,14 @@ This produces the fractal [fractals/randomOrder20.png](fractals/randomOrder20.pn
 
 ![randomOrder20.png](fractals/randomOrder20.png)
 
+If we try producing an order 500 fractal:
+
+![randomOrder500.png](fractals/randomOrder500.png)
+
 ## Dependencies
 
-| Dependency                  | Command to install on Ubuntu             |
-|--                           |--                                        |
-| Libpng                      | sudo apt-get install libpng-dev          |
-| CUDA and a cuda-capable GPU | sudo apt-get install nvidia-cuda-toolkit |
-| ffmpeg (makes the movies)   | sudo apt-get install ffmpeg              |
+| Dependency                                              | Command to install on Ubuntu             |
+|--                                                       |--                                        |
+| Libpng                                                  | sudo apt-get install libpng-dev          |
+| CUDA and a cuda-capable GPU                             | sudo apt-get install nvidia-cuda-toolkit |
+| ffmpeg (if you want to create a video of the evolution) | sudo apt-get install ffmpeg              |
