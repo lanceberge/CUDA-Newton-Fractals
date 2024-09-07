@@ -13,7 +13,6 @@ This project performs the iteration on initial guesses all across the complex pl
 Then, after these guesses have converged to the roots of the polynomial, they are color-coded based on which root they converged to.
 This creates the famous fractal pattern: [Newton's Fractals](https://en.wikipedia.org/wiki/Newton_fractal).
 
-For example:
 
 This project also enables you to save snapshots of the evolution at each iteration, then to stitch them into a video:
 
@@ -74,7 +73,7 @@ make stitchMovie name=order12
 
 This will output [order12.mp4](fractals/order12.mp4) in [fractals](fractals).
 
-## Producing a Custom Fractal
+## Producing Custom Fractals
 
 You can also input your own polynomial, which will occur if `testName` isn't order7 or order12. You will be prompted to enter the roots of your polynomial, or 'random'. Example use:
 
@@ -95,7 +94,7 @@ This produces the fractal [fractals/randomOrder20.png](fractals/randomOrder20.pn
 
 ![randomOrder20.png](fractals/randomOrder20.png)
 
-If we try producing an order 500 fractal:
+If we produce an order 500 fractal:
 
 ![randomOrder500.png](fractals/randomOrder500.png)
 
