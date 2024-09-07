@@ -15,6 +15,10 @@ For example:
 [fractals/order12](fractals/order12.png):
 ![order12](fractals/order12.png)
 
+This project also enables you to save snapshots of the evolution at each iteration, then to stitch them into a video:
+
+![](fractals/order12.gif)
+
 ## Running the Code
 
 Example use:
