@@ -1,7 +1,6 @@
 # CUDA Newton Fractals
 
-[fractals/order12](fractals/order12.png):
-![order12](fractals/order12.png)
+![order12](https://github.com/user-attachments/assets/d81ad4c3-ebb0-4d2b-89ec-c2b3adda2d4d)
 
 Newton's Method is an iterative technique to find the roots of a polynomial. It begins with an initial guess of a root, then performs the iteration:
 
@@ -16,7 +15,7 @@ This creates the famous fractal pattern: [Newton's Fractals](https://en.wikipedi
 
 This project also enables you to save snapshots of the evolution at each iteration, then to stitch them into a video:
 
-![](fractals/order12.gif)
+![order12](https://github.com/user-attachments/assets/1c28f374-2c2b-4229-8ef1-98f93ea8819b)
 
 ## Running the Code
 
@@ -92,11 +91,11 @@ Seed  - seed the random polynomial (seeds drand48)
 
 This produces the fractal [fractals/randomOrder20.png](fractals/randomOrder20.png):
 
-![randomOrder20.png](fractals/randomOrder20.png)
+![randomOrder20](https://github.com/user-attachments/assets/9810616b-cd1d-46c2-8df8-f8715a79afc7)
 
 If we produce an order 500 fractal:
 
-![randomOrder500.png](fractals/randomOrder500.png)
+![randomOrder500](https://github.com/user-attachments/assets/39ee02d0-1e68-4bc2-811b-b1af0c4a8604)
 
 ## Dependencies
 
